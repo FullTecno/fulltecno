@@ -1,1035 +1,746 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FTGroup | Seguridad Inteligente para Consorcios</title>
-    <meta name="description" content="Tecnología de punta en control de accesos, cámaras HD y automatización para consorcios en Wilde. 10 años de experiencia garantizada.">
-    <!-- Font Awesome (íconos) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --azul-ft: #0f172a;  /* Azul oscuro moderno */
-            --naranja-ft: #f97316;  /* Naranja vibrante */
-            --gris-claro: #f8fafc;
-            --degradado-hero: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(249, 115, 22, 0.7) 100%);
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: white;
-            color: #334155;
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-        
-        /* Header Sticky con Glassmorphism */
-        header {
-            background: rgba(15, 23, 42, 0.8);
-            backdrop-filter: blur(10px);
-            padding: 1rem 0;
-            position: fixed;
-            width: 100%;
-            z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-        }
-        
-        header.scrolled {
-            padding: 0.5rem 0;
-            background: rgba(15, 23, 42, 0.95);
-        }
-        
-        .container {
-            width: 90%;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .logo {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: white;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .logo span {
-            color: var(--naranja-ft);
-        }
-        
-        .logo i {
-            font-size: 1.5rem;
-        }
-        
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-        }
-        
-        .nav-links a {
-            color: white;
-            text-decoration: none;
-            font-weight: 500;
-            position: relative;
-            transition: all 0.3s ease;
-        }
-        
-        .nav-links a::after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 2px;
-            background: var(--naranja-ft);
-            bottom: -5px;
-            left: 0;
-            transition: width 0.3s ease;
-        }
-        
-        .nav-links a:hover::after {
-            width: 100%;
-        }
-        
-        .menu-toggle {
-            display: none;
-            cursor: pointer;
-            color: white;
-            font-size: 1.5rem;
-        }
-        
-        /* Hero Section con Efecto Parallax */
-        .hero {
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            background: var(--degradado-hero), 
-                        url('https://images.unsplash.com/photo-1600880292203-757bb62b4baf?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80') no-repeat center/cover fixed;
-            color: white;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .hero::before {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 100px;
-            background: linear-gradient(to top, var(--gris-claro), transparent);
-            z-index: 1;
-        }
-        
-        .hero-content {
-            position: relative;
-            z-index: 2;
-            max-width: 800px;
-            animation: fadeInUp 1s ease;
-        }
-        
-        .hero h1 {
-            font-size: 3.5rem;
-            margin-bottom: 1.5rem;
-            line-height: 1.2;
-        }
-        
-        .hero p {
-            font-size: 1.2rem;
-            margin-bottom: 2rem;
-            opacity: 0.9;
-        }
-        
-        /* Botones Modernos */
-        .btn {
-            display: inline-block;
-            background: var(--naranja-ft);
-            color: white;
-            padding: 0.8rem 2rem;
-            border-radius: 50px;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3);
-        }
-        
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4);
-        }
-        
-        .btn-outline {
-            background: transparent;
-            border: 2px solid white;
-            margin-left: 1rem;
-        }
-        
-        .btn-outline:hover {
-            background: white;
-            color: var(--azul-ft);
-        }
-        
-        /* Sección Servicios con Grid y Hover Effects */
-        .servicios {
-            padding: 6rem 0;
-            background: var(--gris-claro);
-        }
-        
-        .section-title {
-            text-align: center;
-            margin-bottom: 4rem;
-        }
-        
-        .section-title h2 {
-            font-size: 2.5rem;
-            color: var(--azul-ft);
-            position: relative;
-            display: inline-block;
-        }
-        
-        .section-title h2::after {
-            content: '';
-            position: absolute;
-            width: 50%;
-            height: 4px;
-            background: var(--naranja-ft);
-            bottom: -10px;
-            left: 25%;
-            border-radius: 2px;
-        }
-        
-        .servicios-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-        }
-        
-        .servicio-card {
-            background: white;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-            transition: all 0.4s ease;
-            position: relative;
-        }
-        
-        .servicio-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
-        }
-        
-        .servicio-img {
-            height: 200px;
-            background-size: cover;
-            background-position: center;
-            position: relative;
-        }
-        
-        .servicio-img::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(to bottom, transparent, rgba(15, 23, 42, 0.7));
-        }
-        
-        .servicio-icon {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: var(--naranja-ft);
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.5rem;
-            z-index: 2;
-        }
-        
-        .servicio-content {
-            padding: 2rem;
-        }
-        
-        .servicio-content h3 {
-            color: var(--azul-ft);
-            margin-bottom: 1rem;
-            font-size: 1.5rem;
-        }
-        
-        .servicio-content ul {
-            list-style: none;
-            margin: 1.5rem 0;
-        }
-        
-        .servicio-content ul li {
-            margin-bottom: 0.8rem;
-            position: relative;
-            padding-left: 1.5rem;
-        }
-        
-        .servicio-content ul li::before {
-            content: '\f00c';
-            font-family: 'Font Awesome 6 Free';
-            font-weight: 900;
-            position: absolute;
-            left: 0;
-            color: var(--naranja-ft);
-        }
-        
-        /* Sección Destacado con Stats Animados */
-        .destacado {
-            background: var(--azul-ft);
-            color: white;
-            padding: 6rem 0;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .destacado::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: url('https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80') no-repeat center/cover;
-            opacity: 0.1;
-            z-index: 0;
-        }
-        
-        .destacado-content {
-            position: relative;
-            z-index: 1;
-        }
-        
-        .destacado h2 {
-            font-size: 2.5rem;
-            margin-bottom: 2rem;
-        }
-        
-        .destacado p {
-            max-width: 800px;
-            margin: 0 auto 3rem;
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
-        
-        .stats {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 3rem;
-            margin-top: 3rem;
-        }
-        
-        .stat-item {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(5px);
-            padding: 2rem;
-            border-radius: 10px;
-            min-width: 200px;
-            transition: all 0.3s ease;
-        }
-        
-        .stat-item:hover {
-            transform: translateY(-5px);
-            background: rgba(255, 255, 255, 0.2);
-        }
-        
-        .stat-number {
-            font-size: 3rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            color: var(--naranja-ft);
-        }
-        
-        .stat-label {
-            font-size: 1rem;
-            opacity: 0.8;
-        }
-        
-        /* Testimonios con Carrusel */
-        .testimonios {
-            padding: 6rem 0;
-        }
-        
-        .testimonios-container {
-            max-width: 800px;
-            margin: 0 auto;
-            position: relative;
-        }
-        
-        .testimonio {
-            background: white;
-            padding: 2.5rem;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-            text-align: center;
-            margin: 0 1rem;
-            opacity: 0;
-            transition: opacity 0.5s ease;
-            position: absolute;
-            width: 100%;
-        }
-        
-        .testimonio.active {
-            opacity: 1;
-            position: relative;
-        }
-        
-        .testimonio-text {
-            font-size: 1.1rem;
-            font-style: italic;
-            margin-bottom: 2rem;
-            position: relative;
-        }
-        
-        .testimonio-text::before,
-        .testimonio-text::after {
-            content: '"';
-            font-size: 3rem;
-            color: var(--naranja-ft);
-            opacity: 0.2;
-            position: absolute;
-        }
-        
-        .testimonio-text::before {
-            top: -20px;
-            left: -10px;
-        }
-        
-        .testimonio-text::after {
-            bottom: -40px;
-            right: -10px;
-        }
-        
-        .testimonio-author {
-            font-weight: 600;
-            color: var(--azul-ft);
-        }
-        
-        .testimonio-role {
-            color: var(--naranja-ft);
-            font-size: 0.9rem;
-        }
-        
-        .testimonio-controls {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-        
-        .testimonio-control {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #cbd5e1;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .testimonio-control.active {
-            background: var(--naranja-ft);
-            transform: scale(1.2);
-        }
-        
-        /* Contacto con Formulario Animado */
-        .contacto {
-            padding: 6rem 0;
-            background: var(--gris-claro);
-        }
-        
-        .contacto-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 3rem;
-        }
-        
-        .contacto-info {
-            display: flex;
-            flex-direction: column;
-            gap: 2rem;
-        }
-        
-        .info-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 1rem;
-        }
-        
-        .info-icon {
-            background: var(--naranja-ft);
-            color: white;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            flex-shrink: 0;
-        }
-        
-        .info-content h3 {
-            color: var(--azul-ft);
-            margin-bottom: 0.5rem;
-        }
-        
-        .contacto-form {
-            background: white;
-            padding: 2.5rem;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-            transform: translateY(50px);
-            opacity: 0;
-            transition: all 0.8s ease;
-        }
-        
-        .contacto-form.animate {
-            transform: translateY(0);
-            opacity: 1;
-        }
-        
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: var(--azul-ft);
-        }
-        
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 1rem;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            font-family: 'Poppins', sans-serif;
-            transition: all 0.3s ease;
-        }
-        
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            border-color: var(--naranja-ft);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
-        }
-        
-        textarea {
-            resize: vertical;
-            min-height: 120px;
-        }
-        
-        /* Footer */
-        footer {
-            background: var(--azul-ft);
-            color: white;
-            padding: 4rem 0 2rem;
-        }
-        
-        .footer-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 2rem;
-            margin-bottom: 3rem;
-        }
-        
-        .footer-col h3 {
-            font-size: 1.2rem;
-            margin-bottom: 1.5rem;
-            position: relative;
-            display: inline-block;
-        }
-        
-        .footer-col h3::after {
-            content: '';
-            position: absolute;
-            width: 50%;
-            height: 2px;
-            background: var(--naranja-ft);
-            bottom: -5px;
-            left: 0;
-        }
-        
-        .footer-links {
-            list-style: none;
-        }
-        
-        .footer-links li {
-            margin-bottom: 0.8rem;
-        }
-        
-        .footer-links a {
-            color: #cbd5e1;
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-        
-        .footer-links a:hover {
-            color: white;
-            padding-left: 5px;
-        }
-        
-        .social-links {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-        
-        .social-links a {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            transition: all 0.3s ease;
-        }
-        
-        .social-links a:hover {
-            background: var(--naranja-ft);
-            transform: translateY(-3px);
-        }
-        
-        .footer-bottom {
-            text-align: center;
-            padding-top: 2rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            font-size: 0.9rem;
-            color: #94a3b8;
-        }
-        
-        /* WhatsApp Flotante */
-        .whatsapp-btn {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            background: #25D366;
-            color: white;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            box-shadow: 0 5px 20px rgba(37, 211, 102, 0.3);
-            z-index: 999;
-            transition: all 0.3s ease;
-            animation: pulse 2s infinite;
-        }
-        
-        .whatsapp-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 8px 25px rgba(37, 211, 102, 0.4);
-        }
-        
-        /* Animaciones */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7);
-            }
-            70% {
-                box-shadow: 0 0 0 15px rgba(37, 211, 102, 0);
-            }
-            100% {
-                box-shadow: 0 0 0 0 rgba(37, 211, 102, 0);
-            }
-        }
-        
-        /* Responsive */
-        @media (max-width: 992px) {
-            .hero h1 {
-                font-size: 2.8rem;
-            }
-            
-            .nav-links {
-                position: fixed;
-                top: 80px;
-                left: -100%;
-                width: 100%;
-                height: calc(100vh - 80px);
-                background: var(--azul-ft);
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                gap: 2rem;
-                transition: all 0.5s ease;
-            }
-            
-            .nav-links.active {
-                left: 0;
-            }
-            
-            .menu-toggle {
-                display: block;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 2.2rem;
-            }
-            
-            .hero p {
-                font-size: 1rem;
-            }
-            
-            .btn-group {
-                display: flex;
-                flex-direction: column;
-                gap: 1rem;
-            }
-            
-            .btn-outline {
-                margin-left: 0;
-            }
-            
-            .stats {
-                flex-direction: column;
-                align-items: center;
-                gap: 1.5rem;
-            }
-            
-            .stat-item {
-                width: 100%;
-                max-width: 250px;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FT - Control de Acceso Profesional</title>
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
+<script>tailwind.config={theme:{extend:{colors:{primary:'#40E0D0',secondary:'#000000'},borderRadius:{'none':'0px','sm':'4px',DEFAULT:'8px','md':'12px','lg':'16px','xl':'20px','2xl':'24px','3xl':'32px','full':'9999px','button':'8px'}}}}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+<style>
+:where([class^="ri-"])::before { content: "\f3c2"; }
+body {
+font-family: 'Montserrat', sans-serif;
+}
+.hero-section {
+background-image: linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.4)), url('https://readdy.ai/api/search-image?query=modern%20office%20building%20entrance%20with%20security%20access%20control%20system%2C%20professional%20corporate%20environment%2C%20clean%20and%20minimal%20design%2C%20turquoise%20and%20black%20color%20scheme%2C%20high-tech%20security%20equipment%2C%20blurred%20background%20with%20people%20walking&width=1920&height=800&seq=12345&orientation=landscape');
+background-size: cover;
+background-position: center;
+}
+.service-card:hover {
+transform: translateY(-5px);
+box-shadow: 0 10px 25px rgba(64, 224, 208, 0.15);
+}
+.product-card:hover {
+transform: translateY(-5px);
+box-shadow: 0 10px 25px rgba(64, 224, 208, 0.15);
+}
+input:focus, textarea:focus {
+outline: none;
+border-color: #40E0D0;
+}
+</style>
 </head>
-<body>
-    <!-- Header -->
-    <header id="header">
-        <div class="container">
-            <nav>
-                <div class="logo">
-                    <i class="fas fa-shield-alt"></i>
-                    <span>FT</span>Group
-                </div>
-                <div class="nav-links" id="navLinks">
-                    <a href="#servicios">Servicios</a>
-                    <a href="#nosotros">Nosotros</a>
-                    <a href="#clientes">Clientes</a>
-                    <a href="#contacto">Contacto</a>
-                </div>
-                <div class="menu-toggle" id="menuToggle">
-                    <i class="fas fa-bars"></i>
-                </div>
-            </nav>
-        </div>
-    </header>
-
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="container">
-            <div class="hero-content">
-                <h1>Seguridad Inteligente para tu Consorcio</h1>
-                <p>10 años protegiendo edificios en Wilde con tecnología de última generación y soporte técnico local</p>
-                <div class="btn-group">
-                    <a href="#contacto" class="btn">Solicitar Cotización</a>
-                    <a href="#servicios" class="btn btn-outline">Ver Servicios</a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Servicios -->
-    <section id="servicios" class="servicios">
-        <div class="container">
-            <div class="section-title">
-                <h2>Nuestros Servicios</h2>
-                <p>Soluciones integrales para la seguridad y automatización de tu consorcio</p>
-            </div>
-            <div class="servicios-grid">
-                <!-- Control de Accesos -->
-                <div class="servicio-card">
-                    <div class="servicio-img" style="background-image: url('https://images.unsplash.com/photo-1605100804763-247f67b3557e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80');">
-                        <div class="servicio-icon">
-                            <i class="fas fa-key"></i>
-                        </div>
-                    </div>
-                    <div class="servicio-content">
-                        <h3>Control de Accesos</h3>
-                        <p>Sistemas RFID avanzados con respaldo de energía y registros detallados.</p>
-                        <ul>
-                            <li>Llaveros anti-clonación numerados</li>
-                            <li>Respaldo con batería (hasta 12hs)</li>
-                            <li>Integración con cámaras de seguridad</li>
-                            <li>Garantía de 12 meses en instalación</li>
-                        </ul>
-                        <a href="#contacto" class="btn" style="width: 100%; text-align: center;">Consultar</a>
-                    </div>
-                </div>
-
-                <!-- Cámaras de Seguridad -->
-                <div class="servicio-card">
-                    <div class="servicio-img" style="background-image: url('https://images.unsplash.com/photo-1563986768609-322da13575f3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80');">
-                        <div class="servicio-icon">
-                            <i class="fas fa-video"></i>
-                        </div>
-                    </div>
-                    <div class="servicio-content">
-                        <h3>Cámaras de Seguridad</h3>
-                        <p>Sistemas CCTV Full HD con visión nocturna y monitoreo remoto.</p>
-                        <ul>
-                            <li>Grabación 24/7 con almacenamiento</li>
-                            <li>Jaulas antivandálicas incluidas</li>
-                            <li>Visualización desde cualquier dispositivo</li>
-                            <li>Compatibilidad multi-marca</li>
-                        </ul>
-                        <a href="#contacto" class="btn" style="width: 100%; text-align: center;">Consultar</a>
-                    </div>
-                </div>
-
-                <!-- Paneles Solares -->
-                <div class="servicio-card">
-                    <div class="servicio-img" style="background-image: url('https://images.unsplash.com/photo-1509391366360-2e959784a276?ixlib=rb-4.0.3&auto=format&fit=crop&w=1472&q=80');">
-                        <div class="servicio-icon">
-                            <i class="fas fa-solar-panel"></i>
-                        </div>
-                    </div>
-                    <div class="servicio-content">
-                        <h3>Paneles Solares</h3>
-                        <p>Energía sustentable para áreas comunes con máxima eficiencia.</p>
-                        <ul>
-                            <li>Reducción de costos energéticos</li>
-                            <li>Respaldo para sistemas de seguridad</li>
-                            <li>Mantenimiento anual incluido</li>
-                            <li>Instalación certificada</li>
-                        </ul>
-                        <a href="#contacto" class="btn" style="width: 100%; text-align: center;">Consultar</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Destacado -->
-    <section class="destacado">
-        <div class="container">
-            <div class="destacado-content">
-                <h2>¿Por qué elegir FTGroup?</h2>
-                <p>Somos líderes en Wilde por nuestra atención personalizada, tecnología premium y garantías extendidas que superan a la competencia.</p>
-                <div class="stats">
-                    <div class="stat-item">
-                        <div class="stat-number" id="years-counter">0</div>
-                        <div class="stat-label">Años de Experiencia</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number" id="projects-counter">0</div>
-                        <div class="stat-label">Proyectos Completados</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number" id="warranty-counter">0</div>
-                        <div class="stat-label">Meses de Garantía</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Testimonios -->
-    <section id="clientes" class="testimonios">
-        <div class="container">
-            <div class="section-title">
-                <h2>Clientes que confían en nosotros</h2>
-                <p>Lo que dicen nuestros clientes sobre nuestros servicios</p>
-            </div>
-            <div class="testimonios-container">
-                <!-- Testimonio 1 -->
-                <div class="testimonio active">
-                    <p class="testimonio-text">"Instalaron el sistema de acceso en nuestro edificio y desde entonces cero problemas. Excelente post-venta y respuesta rápida ante cualquier consulta."</p>
-                    <h4 class="testimonio-author">Rodo 90, Wilde</h4>
-                    <p class="testimonio-role">Administrador de Consorcio</p>
-                </div>
-                <!-- Testimonio 2 -->
-                <div class="testimonio">
-                    <p class="testimonio-text">"Las cámaras que instaló FTGroup tienen una calidad de imagen excelente. Pudimos identificar un incidente gracias a la claridad de las grabaciones."</p>
-                    <h4 class="testimonio-author">Edificio Oroño 6264</h4>
-                    <p class="testimonio-role">Presidente de Consorcio</p>
-                </div>
-                <!-- Testimonio 3 -->
-                <div class="testimonio">
-                    <p class="testimonio-text">"Los paneles solares redujeron nuestro gasto en electricidad en un 40%. FTGroup nos asesoró perfectamente según nuestras necesidades."</p>
-                    <h4 class="testimonio-author">Residencial San José</h4>
-                    <p class="testimonio-role">Encargado</p>
-                </div>
-                <div class="testimonio-controls">
-                    <div class="testimonio-control active" data-index="0"></div>
-                    <div class="testimonio-control" data-index="1"></div>
-                    <div class="testimonio-control" data-index="2"></div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Contacto -->
-    <section id="contacto" class="contacto">
-        <div class="container">
-            <div class="section-title">
-                <h2>Contacto</h2>
-                <p>Contáctanos para una cotización personalizada</p>
-            </div>
-            <div class="contacto-grid">
-                <div class="contacto-info">
-                    <div class="info-item">
-                        <div class="info-icon">
-                            <i class="fas fa-map-marker-alt"></i>
-                        </div>
-                        <div class="info-content">
-                            <h3>Dirección</h3>
-                            <p>Raquel Español 149, Wilde, Bs.As.</p>
-                        </div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-icon">
-                            <i class="fas fa-phone-alt"></i>
-                        </div>
-                        <div class="info-content">
-                            <h3>Teléfonos</h3>
-                            <p>3979-3864<br>11 2642-8399<br>11 3322-2588</p>
-                        </div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-icon">
-                            <i class="fas fa-envelope"></i>
-                        </div>
-                        <div class="info-content">
-                            <h3>Email</h3>
-                            <p>info@ftgroup.ar</p>
-                        </div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-icon">
-                            <i class="fas fa-clock"></i>
-                        </div>
-                        <div class="info-content">
-                            <h3>Horarios</h3>
-                            <p>Lunes a Viernes: 9:00 - 18:00<br>Sábados: 9:00 - 13:00</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="contacto-form" id="contactForm">
-                    <form id="cotizacionForm">
-                        <div class="form-group">
-                            <label for="nombre">Nombre Completo</label>
-                            <input type="text" id="nombre" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="telefono">Teléfono</label>
-                            <input type="tel" id="telefono" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="email">Email</label>
-                            <input type="email" id="email">
-                        </div>
-                        <div class="form-group">
-                            <label for="servicio">Servicio de Interés</label>
-                            <select id="servicio" required>
-                                <option value="">Seleccionar...</option>
-                                <option value="control_accesos">Control de Accesos</option>
-                                <option value="camaras">Cámaras de Seguridad</option>
-                                <option value="paneles">Paneles Solares</option>
-                                <option value="porteros">Video Porteros</option>
-                                <option value="cercos">Cercos Eléctricos</option>
-                                <option value="wifi">WiFi para Urbanizaciones</option>
-                                <option value="otros">Otros</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="mensaje">Mensaje</label>
-                            <textarea id="mensaje" placeholder="Describa su requerimiento..."></textarea>
-                        </div>
-                        <button type="submit" class="btn">Enviar Consulta</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer>
-        <div class="container">
-            <div class="footer-grid">
-                <div class="footer-col">
-                    <h3>FTGroup</h3>
-                    <p>10 años brindando soluciones tecnológicas de seguridad y automatización para consorcios en Wilde y zona sur.</p>
-                    <div class="social-links">
-                        <a href="#"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#"><i class="fab fa-instagram"></i></a>
-                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
-                    </div>
-                </div>
-                <div class="footer-col">
-                    <h3>Servicios</h3>
-                    <ul class="footer-links">
-                        <li><a href="#">Control de Accesos</a></li>
-                        <li><a href="#">Cámaras de Seguridad</a></li>
-                        <li><a href="#">Video Porteros</a></li>
-                        <li><a href="#">Paneles Solares</a></li>
-                        <li><a href="#">Cercos Eléctricos</a></li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h3>Enlaces</h3>
-                    <ul class="footer-links">
-                        <li><a href="#servicios">Servicios</a></li>
-                        <li><a href="#nosotros">Nosotros</a></li>
-                        <li><a href="#clientes">Clientes</a></li>
-                        <li><a href="#contacto">Contacto</a></li>
-                        <li><a href="#">Blog</a></li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h3>Legal</h3>
-                    <ul class="footer-links">
-                        <li><a href="#">Términos y Condiciones</a></li>
-                        <li><a href="#">Política de Privacidad</a></li>
-                        <li><a href="#">Garantías</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2024 FTGroup. Todos los derechos reservados
+<body class="bg-white">
+<!-- Header & Navigation -->
+<header class="sticky top-0 z-50 bg-white shadow-md">
+<div class="container mx-auto px-4 py-3 flex justify-between items-center">
+<div class="flex items-center">
+<img src="https://readdy.ai/api/search-image?query=FT%20logo%20with%20turquoise%20circular%20background%20effect%2C%20professional%20and%20modern%20design%2C%20minimal%20style%2C%20high%20contrast&width=80&height=80&seq=54321&orientation=squarish" alt="FT Logo" class="h-12">
+<span class="ml-2 text-xl font-bold text-secondary">FT Seguridad</span>
+</div>
+<nav class="hidden md:flex space-x-8">
+<a href="#" class="text-secondary hover:text-primary font-medium transition-colors">Inicio</a>
+<a href="#servicios" class="text-secondary hover:text-primary font-medium transition-colors">Servicios</a>
+<a href="#productos" class="text-secondary hover:text-primary font-medium transition-colors">Productos</a>
+<a href="#soporte" class="text-secondary hover:text-primary font-medium transition-colors">Soporte Técnico</a>
+<a href="#contacto" class="text-secondary hover:text-primary font-medium transition-colors">Contacto</a>
+</nav>
+<div class="md:hidden flex items-center">
+<button class="text-secondary p-2 focus:outline-none">
+<div class="w-6 h-6 flex items-center justify-center">
+<i class="ri-menu-line ri-lg"></i>
+</div>
+</button>
+</div>
+</div>
+</header>
+<!-- Hero Section -->
+<section class="hero-section w-full h-[600px] flex items-center">
+<div class="container mx-auto px-4">
+<div class="max-w-2xl">
+<h1 class="text-4xl md:text-5xl font-bold text-white mb-6">Soluciones Avanzadas en Control de Acceso</h1>
+<p class="text-lg text-gray-200 mb-8">Proteja su empresa o consorcio con nuestros sistemas de seguridad de última generación. Ofrecemos tecnología RFID, biométrica y reconocimiento facial para garantizar el acceso seguro a sus instalaciones.</p>
+<div class="flex flex-wrap gap-4">
+<button class="bg-primary text-secondary px-6 py-3 font-semibold !rounded-button whitespace-nowrap hover:bg-opacity-90 transition-all">Solicitar Cotización</button>
+<button class="bg-transparent border-2 border-white text-white px-6 py-3 font-semibold !rounded-button whitespace-nowrap hover:bg-white hover:bg-opacity-10 transition-all">Conocer Más</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Main Services Section -->
+<section id="servicios" class="py-16 bg-gray-50">
+<div class="container mx-auto px-4">
+<div class="text-center mb-12">
+<h2 class="text-3xl font-bold text-secondary mb-4">Nuestros Servicios Principales</h2>
+<p class="text-gray-600 max-w-2xl mx-auto">Ofrecemos soluciones integrales de control de acceso adaptadas a las necesidades específicas de su empresa o consorcio.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- RFID Service -->
+<div class="service-card bg-white p-8 rounded shadow-lg transition-all duration-300">
+<div class="w-16 h-16 bg-primary bg-opacity-10 rounded-full flex items-center justify-center mb-6 mx-auto">
+<div class="w-8 h-8 flex items-center justify-center text-primary">
+<i class="ri-contactless-line ri-2x"></i>
+</div>
+</div>
+<h3 class="text-xl font-bold text-secondary text-center mb-4">Control de Acceso RFID</h3>
+<p class="text-gray-600 text-center">Sistema de identificación por radiofrecuencia que permite el acceso mediante tarjetas o llaveros. Ideal para empresas con alto flujo de personal.</p>
+<ul class="mt-4 space-y-2">
+<li class="flex items-start">
+<div class="w-5 h-5 flex items-center justify-center text-primary mr-2 mt-0.5">
+<i class="ri-check-line"></i>
+</div>
+<span class="text-gray-600">Acceso rápido y sin contacto</span>
+</li>
+<li class="flex items-start">
+<div class="w-5 h-5 flex items-center justify-center text-primary mr-2 mt-0.5">
+<i class="ri-check-line"></i>
+</div>
+<span class="text-gray-600">Registro de entradas y salidas</span>
+</li>
+<li class="flex items-start">
+<div class="w-5 h-5 flex items-center justify-center text-primary mr-2 mt-0.5">
+<i class="ri-check-line"></i>
+</div>
+<span class="text-gray-600">Fácil administración de usuarios</span>
+</li>
+</ul>
+</div>
+<!-- Facial Recognition -->
+<div class="service-card bg-white p-8 rounded shadow-lg transition-all duration-300">
+<div class="w-16 h-16 bg-primary bg-opacity-10 rounded-full flex items-center justify-center mb-6 mx-auto">
+<div class="w-8 h-8 flex items-center justify-center text-primary">
+<i class="ri-face-recognition-line ri-2x"></i>
+</div>
+</div>
+<h3 class="text-xl font-bold text-secondary text-center mb-4">Reconocimiento Facial</h3>
+<p class="text-gray-600 text-center">Tecnología avanzada que identifica a las personas mediante sus rasgos faciales. Proporciona un alto nivel de seguridad sin contacto físico.</p>
+<ul class="mt-4 space-y-2">
+<li class="flex items-start">
+<div class="w-5 h-5 flex items-center justify-center text-primary mr-2 mt-0.5">
+<i class="ri-check-line"></i>
+</div>
+<span class="text-gray-600">Identificación en menos de 1 segundo</span>
+</li>
+<li class="flex items-start">
+<div class="w-5 h-5 flex items-center justify-center text-primary mr-2 mt-0.5">
+<i class="ri-check-line"></i>
+</div>
+<span class="text-gray-600">Funciona con mascarillas</span>
+</li>
+<li class="flex items-start">
+<div class="w-5 h-5 flex items-center justify-center text-primary mr-2 mt-0.5">
+<i class="ri-check-line"></i>
+</div>
+<span class="text-gray-600">Detección de intrusos</span>
+</li>
+</ul>
+</div>
+<!-- Fingerprint -->
+<div class="service-card bg-white p-8 rounded shadow-lg transition-all duration-300">
+<div class="w-16 h-16 bg-primary bg-opacity-10 rounded-full flex items-center justify-center mb-6 mx-auto">
+<div class="w-8 h-8 flex items-center justify-center text-primary">
+<i class="ri-fingerprint-line ri-2x"></i>
+</div>
+</div>
+<h3 class="text-xl font-bold text-secondary text-center mb-4">Lectura de Huella Dactilar</h3>
+<p class="text-gray-600 text-center">Sistema biométrico que utiliza las huellas dactilares únicas de cada persona para permitir el acceso autorizado.</p>
+<ul class="mt-4 space-y-2">
+<li class="flex items-start">
+<div class="w-5 h-5 flex items-center justify-center text-primary mr-2 mt-0.5">
+<i class="ri-check-line"></i>
+</div>
+<span class="text-gray-600">Alta precisión de identificación</span>
+</li>
+<li class="flex items-start">
+<div class="w-5 h-5 flex items-center justify-center text-primary mr-2 mt-0.5">
+<i class="ri-check-line"></i>
+</div>
+<span class="text-gray-600">Imposible de falsificar</span>
+</li>
+<li class="flex items-start">
+<div class="w-5 h-5 flex items-center justify-center text-primary mr-2 mt-0.5">
+<i class="ri-check-line"></i>
+</div>
+<span class="text-gray-600">Bajo mantenimiento</span>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<!-- Products Section -->
+<section id="productos" class="py-16">
+<div class="container mx-auto px-4">
+<div class="text-center mb-12">
+<h2 class="text-3xl font-bold text-secondary mb-4">Productos Destacados</h2>
+<p class="text-gray-600 max-w-2xl mx-auto">Disponemos de una amplia gama de productos de control de acceso para satisfacer todas sus necesidades de seguridad.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+<!-- Electromagnetic Locks -->
+<div class="product-card bg-white rounded shadow-lg overflow-hidden transition-all duration-300">
+<div class="h-48 overflow-hidden">
+<img src="https://readdy.ai/api/search-image?query=professional%20electromagnetic%20door%20lock%20installed%20on%20glass%20door%2C%20modern%20office%20setting%2C%20high%20security%20device%2C%20detailed%20product%20shot%20on%20white%20background%2C%20turquoise%20accent%20lighting&width=600&height=400&seq=11111&orientation=landscape" alt="Cerradura Electromagnética" class="w-full h-full object-cover object-top">
+</div>
+<div class="p-6">
+<h3 class="text-lg font-bold text-secondary mb-2">Cerraduras Electromagnéticas</h3>
+<p class="text-gray-600 text-sm mb-4">Cerraduras de alta resistencia con fuerza de retención de hasta 600kg. Ideales para puertas de alto tránsito.</p>
+<button class="bg-primary text-white px-4 py-2 text-sm font-medium !rounded-button whitespace-nowrap hover:bg-opacity-90 transition-all">Más Información</button>
+</div>
+</div>
+<!-- Electronic Locks -->
+<div class="product-card bg-white rounded shadow-lg overflow-hidden transition-all duration-300">
+<div class="h-48 overflow-hidden">
+<img src="https://readdy.ai/api/search-image?query=electronic%20door%20lock%20with%20keypad%20and%20card%20reader%2C%20modern%20design%2C%20installed%20on%20wooden%20door%2C%20professional%20security%20device%2C%20detailed%20product%20shot%20on%20white%20background%2C%20turquoise%20accent%20lighting&width=600&height=400&seq=22222&orientation=landscape" alt="Pestillo Electrónico" class="w-full h-full object-cover object-top">
+</div>
+<div class="p-6">
+<h3 class="text-lg font-bold text-secondary mb-2">Pestillos Electrónicos</h3>
+<p class="text-gray-600 text-sm mb-4">Sistemas de cierre automático con múltiples opciones de acceso: tarjeta, código, huella o facial.</p>
+<button class="bg-primary text-white px-4 py-2 text-sm font-medium !rounded-button whitespace-nowrap hover:bg-opacity-90 transition-all">Más Información</button>
+</div>
+</div>
+<!-- RFID Cards -->
+<div class="product-card bg-white rounded shadow-lg overflow-hidden transition-all duration-300">
+<div class="h-48 overflow-hidden">
+<img src="https://readdy.ai/api/search-image?query=RFID%20cards%20and%20key%20fobs%20collection%2C%20various%20designs%2C%20professional%20corporate%20identity%20cards%2C%20access%20control%20tokens%2C%20detailed%20product%20shot%20on%20white%20background%2C%20turquoise%20accent%20color&width=600&height=400&seq=33333&orientation=landscape" alt="Tarjetas RFID" class="w-full h-full object-cover object-top">
+</div>
+<div class="p-6">
+<h3 class="text-lg font-bold text-secondary mb-2">Tarjetas y Llaveros RFID</h3>
+<p class="text-gray-600 text-sm mb-4">Dispositivos de identificación personalizables con su logo corporativo. Disponibles en diferentes formatos.</p>
+<button class="bg-primary text-white px-4 py-2 text-sm font-medium !rounded-button whitespace-nowrap hover:bg-opacity-90 transition-all">Más Información</button>
+</div>
+</div>
+<!-- Biometric Readers -->
+<div class="product-card bg-white rounded shadow-lg overflow-hidden transition-all duration-300">
+<div class="h-48 overflow-hidden">
+<img src="https://readdy.ai/api/search-image?query=modern%20biometric%20fingerprint%20and%20facial%20recognition%20reader%2C%20wall-mounted%20access%20control%20device%2C%20high-tech%20security%20equipment%2C%20detailed%20product%20shot%20on%20white%20background%2C%20turquoise%20display%20screen&width=600&height=400&seq=44444&orientation=landscape" alt="Lector Biométrico" class="w-full h-full object-cover object-top">
+</div>
+<div class="p-6">
+<h3 class="text-lg font-bold text-secondary mb-2">Lectores Biométricos</h3>
+<p class="text-gray-600 text-sm mb-4">Dispositivos avanzados de reconocimiento facial y huella dactilar con tecnología anti-falsificación.</p>
+<button class="bg-primary text-white px-4 py-2 text-sm font-medium !rounded-button whitespace-nowrap hover:bg-opacity-90 transition-all">Más Información</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Complementary Services -->
+<section id="soporte" class="py-16 bg-gray-50">
+<div class="container mx-auto px-4">
+<div class="text-center mb-12">
+<h2 class="text-3xl font-bold text-secondary mb-4">Servicios Complementarios</h2>
+<p class="text-gray-600 max-w-2xl mx-auto">Además de nuestras soluciones de control de acceso, ofrecemos servicios adicionales para garantizar la seguridad integral de su empresa.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<!-- Technical Support -->
+<div class="bg-white p-8 rounded shadow-lg">
+<div class="flex items-center mb-6">
+<div class="w-12 h-12 bg-primary bg-opacity-10 rounded-full flex items-center justify-center mr-4">
+<div class="w-6 h-6 flex items-center justify-center text-primary">
+<i class="ri-computer-line ri-lg"></i>
+</div>
+</div>
+<h3 class="text-xl font-bold text-secondary">Soporte Técnico Informático</h3>
+</div>
+<p class="text-gray-600 mb-6">Nuestro equipo de técnicos especializados está disponible para resolver cualquier incidencia con sus sistemas informáticos y de control de acceso.</p>
+<ul class="space-y-3">
+<li class="flex items-start">
+<div class="w-5 h-5 flex items-center justify-center text-primary mr-2 mt-0.5">
+<i class="ri-check-line"></i>
+</div>
+<span class="text-gray-600">Mantenimiento preventivo y correctivo</span>
+</li>
+<li class="flex items-start">
+<div class="w-5 h-5 flex items-center justify-center text-primary mr-2 mt-0.5">
+<i class="ri-check-line"></i>
+</div>
+<span class="text-gray-600">Asistencia remota y presencial</span>
+</li>
+<li class="flex items-start">
+<div class="w-5 h-5 flex items-center justify-center text-primary mr-2 mt-0.5">
+<i class="ri-check-line"></i>
+</div>
+<span class="text-gray-600">Actualización de software y firmware</span>
+</li>
+<li class="flex items-start">
+<div class="w-5 h-5 flex items-center justify-center text-primary mr-2 mt-0.5">
+<i class="ri-check-line"></i>
+</div>
+<span class="text-gray-600">Respuesta en menos de 24 horas</span>
+</li>
+</ul>
+<button class="mt-6 bg-primary text-white px-6 py-2 font-medium !rounded-button whitespace-nowrap hover:bg-opacity-90 transition-all">Contratar Soporte</button>
+</div>
+<!-- Video Surveillance -->
+<div class="bg-white p-8 rounded shadow-lg">
+<div class="flex items-center mb-6">
+<div class="w-12 h-12 bg-primary bg-opacity-10 rounded-full flex items-center justify-center mr-4">
+<div class="w-6 h-6 flex items-center justify-center text-primary">
+<i class="ri-cctv-line ri-lg"></i>
+</div>
+</div>
+<h3 class="text-xl font-bold text-secondary">Sistemas de Videovigilancia</h3>
+</div>
+<p class="text-gray-600 mb-6">Complementa tu sistema de control de acceso con cámaras de seguridad de última generación para una protección integral de tus instalaciones.</p>
+<ul class="space-y-3">
+<li class="flex items-start">
+<div class="w-5 h-5 flex items-center justify-center text-primary mr-2 mt-0.5">
+<i class="ri-check-line"></i>
+</div>
+<span class="text-gray-600">Cámaras IP de alta resolución</span>
+</li>
+<li class="flex items-start">
+<div class="w-5 h-5 flex items-center justify-center text-primary mr-2 mt-0.5">
+<i class="ri-check-line"></i>
+</div>
+<span class="text-gray-600">Grabación 24/7 con detección de movimiento</span>
+</li>
+<li class="flex items-start">
+<div class="w-5 h-5 flex items-center justify-center text-primary mr-2 mt-0.5">
+<i class="ri-check-line"></i>
+</div>
+<span class="text-gray-600">Acceso remoto desde dispositivos móviles</span>
+</li>
+<li class="flex items-start">
+<div class="w-5 h-5 flex items-center justify-center text-primary mr-2 mt-0.5">
+<i class="ri-check-line"></i>
+</div>
+<span class="text-gray-600">Análisis inteligente de video</span>
+</li>
+</ul>
+<button class="mt-6 bg-primary text-white px-6 py-2 font-medium !rounded-button whitespace-nowrap hover:bg-opacity-90 transition-all">Solicitar Presupuesto</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Clients Section -->
+<section class="py-16">
+<div class="container mx-auto px-4">
+<div class="text-center mb-12">
+<h2 class="text-3xl font-bold text-secondary mb-4">Nuestros Clientes</h2>
+<p class="text-gray-600 max-w-2xl mx-auto">Empresas y consorcios que confían en nuestras soluciones de seguridad para proteger sus instalaciones.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+<!-- Corporate Clients -->
+<div class="bg-white p-8 rounded shadow-lg">
+<div class="flex items-center mb-6">
+<div class="w-12 h-12 bg-primary bg-opacity-10 rounded-full flex items-center justify-center mr-4">
+<div class="w-6 h-6 flex items-center justify-center text-primary">
+<i class="ri-building-line ri-lg"></i>
+</div>
+</div>
+<h3 class="text-xl font-bold text-secondary">Empresas</h3>
+</div>
+<p class="text-gray-600 mb-6">Ofrecemos soluciones personalizadas para empresas de todos los tamaños, desde pequeñas oficinas hasta grandes corporaciones.</p>
+<h4 class="text-lg font-bold text-secondary mb-6">Clientes Destacados</h4>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+<a href="https://www.fera.com.ar" target="_blank" class="group">
+<div class="bg-white p-8 rounded shadow-lg hover:shadow-xl transition-all duration-300">
+<div class="aspect-video mb-6 overflow-hidden rounded bg-gray-50 flex items-center justify-center">
+<img src="https://readdy.ai/api/search-image?query=modern%20real%20estate%20company%20logo%2C%20professional%20corporate%20design%2C%20minimal%20style%2C%20elegant%20and%20sophisticated%2C%20turquoise%20and%20black%20color%20scheme%2C%20clean%20background&width=400&height=225&seq=12121&orientation=landscape" alt="Inmobiliaria Fera" class="w-full h-full object-contain p-6">
+</div>
+<div class="text-center">
+<h4 class="text-lg font-bold text-secondary mb-2">Inmobiliaria Fera</h4>
+<p class="text-sm text-gray-600 mb-4">Servicios inmobiliarios profesionales</p>
+<div class="flex items-center justify-center text-primary">
+<span class="text-sm mr-2">www.fera.com.ar</span>
+<div class="w-4 h-4 flex items-center justify-center">
+<i class="ri-external-link-line"></i>
+</div>
+</div>
+</div>
+</div>
+</a>
+<a href="https://www.cckonex.org" target="_blank" class="group">
+<div class="bg-white p-8 rounded shadow-lg hover:shadow-xl transition-all duration-300">
+<div class="aspect-video mb-6 overflow-hidden rounded bg-gray-50 flex items-center justify-center">
+<img src="https://readdy.ai/api/search-image?query=cultural%20center%20logo%2C%20artistic%20and%20modern%20design%2C%20creative%20and%20dynamic%2C%20turquoise%20and%20black%20color%20scheme%2C%20clean%20background&width=400&height=225&seq=12122&orientation=landscape" alt="Ciudad Cultural Konex" class="w-full h-full object-contain p-6">
+</div>
+<div class="text-center">
+<h4 class="text-lg font-bold text-secondary mb-2">Ciudad Cultural Konex</h4>
+<p class="text-sm text-gray-600 mb-4">Centro cultural y artístico</p>
+<div class="flex items-center justify-center text-primary">
+<span class="text-sm mr-2">www.cckonex.org</span>
+<div class="w-4 h-4 flex items-center justify-center">
+<i class="ri-external-link-line"></i>
+</div>
+</div>
+</div>
+</div>
+</a>
+<a href="https://www.facyca.com.ar" target="_blank" class="group">
+<div class="bg-white p-8 rounded shadow-lg hover:shadow-xl transition-all duration-300">
+<div class="aspect-video mb-6 overflow-hidden rounded bg-gray-50 flex items-center justify-center">
+<img src="https://readdy.ai/api/search-image?query=industrial%20company%20logo%2C%20professional%20corporate%20design%2C%20modern%20and%20technical%2C%20turquoise%20and%20black%20color%20scheme%2C%20clean%20background&width=400&height=225&seq=12123&orientation=landscape" alt="Facya" class="w-full h-full object-contain p-6">
+</div>
+<div class="text-center">
+<h4 class="text-lg font-bold text-secondary mb-2">Facya</h4>
+<p class="text-sm text-gray-600 mb-4">Soluciones industriales</p>
+<div class="flex items-center justify-center text-primary">
+<span class="text-sm mr-2">www.facyca.com.ar</span>
+<div class="w-4 h-4 flex items-center justify-center">
+<i class="ri-external-link-line"></i>
+</div>
+</div>
+</div>
+</div>
+</a>
+<a href="http://bellmor.com.ar/bm" target="_blank" class="group">
+<div class="bg-white p-8 rounded shadow-lg hover:shadow-xl transition-all duration-300">
+<div class="aspect-video mb-6 overflow-hidden rounded bg-gray-50 flex items-center justify-center">
+<img src="https://readdy.ai/api/search-image?query=manufacturing%20industry%20logo%2C%20professional%20corporate%20design%2C%20industrial%20and%20modern%2C%20turquoise%20and%20black%20color%20scheme%2C%20clean%20background&width=400&height=225&seq=12124&orientation=landscape" alt="Industrias Bellmor" class="w-full h-full object-contain p-6">
+</div>
+<div class="text-center">
+<h4 class="text-lg font-bold text-secondary mb-2">Industrias Bellmor</h4>
+<p class="text-sm text-gray-600 mb-4">Manufactura industrial</p>
+<div class="flex items-center justify-center text-primary">
+<span class="text-sm mr-2">bellmor.com.ar</span>
+<div class="w-4 h-4 flex items-center justify-center">
+<i class="ri-external-link-line"></i>
+</div>
+</div>
+</div>
+</div>
+</a>
+</div>
+</div>
+<!-- Residential Clients -->
+<div class="bg-white p-8 rounded shadow-lg">
+<div class="flex items-center mb-6">
+<div class="w-12 h-12 bg-primary bg-opacity-10 rounded-full flex items-center justify-center mr-4">
+<div class="w-6 h-6 flex items-center justify-center text-primary">
+<i class="ri-home-4-line ri-lg"></i>
+</div>
+</div>
+<h3 class="text-xl font-bold text-secondary">Consorcios</h3>
+</div>
+<p class="text-gray-600 mb-6">Implementamos sistemas de control de acceso en edificios residenciales para mejorar la seguridad de los vecinos y controlar el acceso de visitantes.</p>
+<div class="grid grid-cols-3 gap-4">
+<div class="bg-gray-100 p-4 rounded flex items-center justify-center">
+<div class="w-8 h-8 flex items-center justify-center text-secondary">
+<i class="ri-building-2-line ri-2x"></i>
+</div>
+</div>
+<div class="bg-gray-100 p-4 rounded flex items-center justify-center">
+<div class="w-8 h-8 flex items-center justify-center text-secondary">
+<i class="ri-building-4-line ri-2x"></i>
+</div>
+</div>
+<div class="bg-gray-100 p-4 rounded flex items-center justify-center">
+<div class="w-8 h-8 flex items-center justify-center text-secondary">
+<i class="ri-community-line ri-2x"></i>
+</div>
+</div>
+<div class="bg-gray-100 p-4 rounded flex items-center justify-center">
+<div class="w-8 h-8 flex items-center justify-center text-secondary">
+<i class="ri-home-8-line ri-2x"></i>
+</div>
+</div>
+<div class="bg-gray-100 p-4 rounded flex items-center justify-center">
+<div class="w-8 h-8 flex items-center justify-center text-secondary">
+<i class="ri-building-3-line ri-2x"></i>
+</div>
+</div>
+<div class="bg-gray-100 p-4 rounded flex items-center justify-center">
+<div class="w-8 h-8 flex items-center justify-center text-secondary">
+<i class="ri-home-gear-line ri-2x"></i>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Testimonials -->
+<div class="bg-white p-8 rounded shadow-lg">
+<h3 class="text-xl font-bold text-secondary mb-6 text-center">Testimonios de Clientes</h3>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="p-6 bg-gray-50 rounded">
+<div class="flex items-center mb-4">
+<div class="text-primary">
+<i class="ri-double-quotes-l ri-2x"></i>
+</div>
+</div>
+<p class="text-gray-600 mb-4">"La implementación del sistema de reconocimiento facial ha mejorado significativamente la seguridad de nuestras oficinas. El soporte técnico es excelente."</p>
+<div class="flex items-center">
+<div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mr-3">
+<div class="w-6 h-6 flex items-center justify-center text-secondary">
+<i class="ri-user-line"></i>
+</div>
+</div>
+<div>
+<p class="font-medium text-secondary">Carlos Rodríguez</p>
+<p class="text-sm text-gray-500">Director de Seguridad, Banco Nacional</p>
+</div>
+</div>
+</div>
+<div class="p-6 bg-gray-50 rounded">
+<div class="flex items-center mb-4">
+<div class="text-primary">
+<i class="ri-double-quotes-l ri-2x"></i>
+</div>
+</div>
+<p class="text-gray-600 mb-4">"Los residentes están muy satisfechos con las tarjetas RFID. El sistema es fácil de usar y nos ha permitido eliminar las llaves físicas."</p>
+<div class="flex items-center">
+<div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mr-3">
+<div class="w-6 h-6 flex items-center justify-center text-secondary">
+<i class="ri-user-line"></i>
+</div>
+</div>
+<div>
+<p class="font-medium text-secondary">María González</p>
+<p class="text-sm text-gray-500">Administradora, Edificio Torres del Sol</p>
+</div>
+</div>
+</div>
+<div class="p-6 bg-gray-50 rounded">
+<div class="flex items-center mb-4">
+<div class="text-primary">
+<i class="ri-double-quotes-l ri-2x"></i>
+</div>
+</div>
+<p class="text-gray-600 mb-4">"La integración de control de acceso con videovigilancia nos ha dado una solución completa. El equipo de FT Seguridad es muy profesional."</p>
+<div class="flex items-center">
+<div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mr-3">
+<div class="w-6 h-6 flex items-center justify-center text-secondary">
+<i class="ri-user-line"></i>
+</div>
+</div>
+<div>
+<p class="font-medium text-secondary">Alejandro Martínez</p>
+<p class="text-sm text-gray-500">Gerente, Centro Comercial Plaza Mayor</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Contact Section -->
+<section id="contacto" class="py-16 bg-gray-50">
+<div class="container mx-auto px-4">
+<div class="text-center mb-12">
+<h2 class="text-3xl font-bold text-secondary mb-4">Contáctenos</h2>
+<p class="text-gray-600 max-w-2xl mx-auto">Estamos a su disposición para resolver cualquier duda y ofrecerle una solución personalizada para sus necesidades de seguridad.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<!-- Contact Form -->
+<div class="bg-white p-8 rounded shadow-lg">
+<h3 class="text-xl font-bold text-secondary mb-6">Envíenos un Mensaje</h3>
+<form>
+<div class="mb-4">
+<label for="name" class="block text-gray-700 mb-2">Nombre Completo</label>
+<input type="text" id="name" class="w-full px-4 py-2 border border-gray-300 rounded focus:border-primary" placeholder="Su nombre y apellido">
+</div>
+<div class="mb-4">
+<label for="email" class="block text-gray-700 mb-2">Correo Electrónico</label>
+<input type="email" id="email" class="w-full px-4 py-2 border border-gray-300 rounded focus:border-primary" placeholder="ejemplo@correo.com">
+</div>
+<div class="mb-4">
+<label for="phone" class="block text-gray-700 mb-2">Teléfono</label>
+<input type="tel" id="phone" class="w-full px-4 py-2 border border-gray-300 rounded focus:border-primary" placeholder="+54 11 1234-5678">
+</div>
+<div class="mb-4">
+<label for="subject" class="block text-gray-700 mb-2">Asunto</label>
+<select id="subject" class="w-full px-4 py-2 border border-gray-300 rounded focus:border-primary pr-8 appearance-none bg-white">
+<option value="">Seleccione un asunto</option>
+<option value="quote">Solicitar presupuesto</option>
+<option value="info">Información de productos</option>
+<option value="support">Soporte técnico</option>
+<option value="other">Otro</option>
+</select>
+</div>
+<div class="mb-6">
+<label for="message" class="block text-gray-700 mb-2">Mensaje</label>
+<textarea id="message" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded focus:border-primary" placeholder="Describa su consulta..."></textarea>
+</div>
+<button type="submit" class="bg-primary text-white px-6 py-3 font-semibold !rounded-button whitespace-nowrap hover:bg-opacity-90 transition-all w-full">Enviar Mensaje</button>
+</form>
+</div>
+<!-- Contact Information -->
+<div class="bg-white p-8 rounded shadow-lg">
+<h3 class="text-xl font-bold text-secondary mb-6">Información de Contacto</h3>
+<div class="space-y-6">
+<div class="flex items-start">
+<div class="w-10 h-10 bg-primary bg-opacity-10 rounded-full flex items-center justify-center mr-4">
+<div class="w-5 h-5 flex items-center justify-center text-primary">
+<i class="ri-map-pin-line"></i>
+</div>
+</div>
+<div>
+<h4 class="font-medium text-secondary mb-1">Dirección</h4>
+<p class="text-gray-600">Av. Corrientes 1234, Piso 5, Oficina B<br>C1043AAZ, Buenos Aires, Argentina</p>
+</div>
+</div>
+<div class="flex items-start">
+<div class="w-10 h-10 bg-primary bg-opacity-10 rounded-full flex items-center justify-center mr-4">
+<div class="w-5 h-5 flex items-center justify-center text-primary">
+<i class="ri-phone-line"></i>
+</div>
+</div>
+<div>
+<h4 class="font-medium text-secondary mb-1">Teléfono</h4>
+<p class="text-gray-600">+54 11 4567-8901</p>
+<p class="text-gray-600">+54 11 2345-6789 (Soporte Técnico)</p>
+</div>
+</div>
+<div class="flex items-start">
+<div class="w-10 h-10 bg-primary bg-opacity-10 rounded-full flex items-center justify-center mr-4">
+<div class="w-5 h-5 flex items-center justify-center text-primary">
+<i class="ri-mail-line"></i>
+</div>
+</div>
+<div>
+<h4 class="font-medium text-secondary mb-1">Correo Electrónico</h4>
+<p class="text-gray-600">info@ftseguridad.com</p>
+<p class="text-gray-600">soporte@ftseguridad.com</p>
+</div>
+</div>
+<div class="flex items-start">
+<div class="w-10 h-10 bg-primary bg-opacity-10 rounded-full flex items-center justify-center mr-4">
+<div class="w-5 h-5 flex items-center justify-center text-primary">
+<i class="ri-time-line"></i>
+</div>
+</div>
+<div>
+<h4 class="font-medium text-secondary mb-1">Horario de Atención</h4>
+<p class="text-gray-600">Lunes a Viernes: 9:00 - 18:00</p>
+<p class="text-gray-600">Sábados: 9:00 - 13:00</p>
+</div>
+</div>
+</div>
+<div class="mt-8">
+<h4 class="font-medium text-secondary mb-4">Síguenos en Redes Sociales</h4>
+<div class="flex space-x-4">
+<a href="#" class="w-10 h-10 bg-primary bg-opacity-10 rounded-full flex items-center justify-center text-primary hover:bg-opacity-20 transition-all">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-facebook-fill"></i>
+</div>
+</a>
+<a href="#" class="w-10 h-10 bg-primary bg-opacity-10 rounded-full flex items-center justify-center text-primary hover:bg-opacity-20 transition-all">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-instagram-line"></i>
+</div>
+</a>
+<a href="#" class="w-10 h-10 bg-primary bg-opacity-10 rounded-full flex items-center justify-center text-primary hover:bg-opacity-20 transition-all">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-linkedin-fill"></i>
+</div>
+</a>
+<a href="#" class="w-10 h-10 bg-primary bg-opacity-10 rounded-full flex items-center justify-center text-primary hover:bg-opacity-20 transition-all">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-whatsapp-line"></i>
+</div>
+</a>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Footer -->
+<footer class="bg-secondary text-white py-12">
+<div class="container mx-auto px-4">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+<div>
+<div class="flex items-center mb-4">
+<img src="https://readdy.ai/api/search-image?query=FT%20logo%20with%20turquoise%20circular%20background%20effect%2C%20professional%20and%20modern%20design%2C%20minimal%20style%2C%20high%20contrast&width=80&height=80&seq=54321&orientation=squarish" alt="FT Logo" class="h-10 mr-2">
+<span class="text-xl font-bold">FT Seguridad</span>
+</div>
+<p class="text-gray-400 mb-4">Soluciones avanzadas en control de acceso y seguridad para empresas y consorcios.</p>
+<div class="flex space-x-4">
+<a href="#" class="text-gray-400 hover:text-primary transition-colors">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-facebook-fill"></i>
+</div>
+</a>
+<a href="#" class="text-gray-400 hover:text-primary transition-colors">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-instagram-line"></i>
+</div>
+</a>
+<a href="#" class="text-gray-400 hover:text-primary transition-colors">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-linkedin-fill"></i>
+</div>
+</a>
+<a href="#" class="text-gray-400 hover:text-primary transition-colors">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-whatsapp-line"></i>
+</div>
+</a>
+</div>
+</div>
+<div>
+<h4 class="text-lg font-bold mb-4">Enlaces Rápidos</h4>
+<ul class="space-y-2">
+<li><a href="#" class="text-gray-400 hover:text-primary transition-colors">Inicio</a></li>
+<li><a href="#servicios" class="text-gray-400 hover:text-primary transition-colors">Servicios</a></li>
+<li><a href="#productos" class="text-gray-400 hover:text-primary transition-colors">Productos</a></li>
+<li><a href="#soporte" class="text-gray-400 hover:text-primary transition-colors">Soporte Técnico</a></li>
+<li><a href="#contacto" class="text-gray-400 hover:text-primary transition-colors">Contacto</a></li>
+</ul>
+</div>
+<div>
+<h4 class="text-lg font-bold mb-4">Servicios</h4>
+<ul class="space-y-2">
+<li><a href="#" class="text-gray-400 hover:text-primary transition-colors">Control de Acceso RFID</a></li>
+<li><a href="#" class="text-gray-400 hover:text-primary transition-colors">Reconocimiento Facial</a></li>
+<li><a href="#" class="text-gray-400 hover:text-primary transition-colors">Lectura de Huella Dactilar</a></li>
+<li><a href="#" class="text-gray-400 hover:text-primary transition-colors">Soporte Técnico Informático</a></li>
+<li><a href="#" class="text-gray-400 hover:text-primary transition-colors">Sistemas de Videovigilancia</a></li>
+</ul>
+</div>
+<div>
+<h4 class="text-lg font-bold mb-4">Contacto</h4>
+<ul class="space-y-2">
+<li class="flex items-start">
+<div class="w-5 h-5 flex items-center justify-center text-primary mr-2 mt-0.5">
+<i class="ri-map-pin-line"></i>
+</div>
+<span class="text-gray-400">Av. Corrientes 1234, Buenos Aires</span>
+</li>
+<li class="flex items-start">
+<div class="w-5 h-5 flex items-center justify-center text-primary mr-2 mt-0.5">
+<i class="ri-phone-line"></i>
+</div>
+<span class="text-gray-400">+54 11 4567-8901</span>
+</li>
+<li class="flex items-start">
+<div class="w-5 h-5 flex items-center justify-center text-primary mr-2 mt-0.5">
+<i class="ri-mail-line"></i>
+</div>
+<span class="text-gray-400">info@ftseguridad.com</span>
+</li>
+<li class="flex items-start">
+<div class="w-5 h-5 flex items-center justify-center text-primary mr-2 mt-0.5">
+<i class="ri-time-line"></i>
+</div>
+<span class="text-gray-400">Lun-Vie: 9:00 - 18:00</span>
+</li>
+</ul>
+</div>
+</div>
+<div class="border-t border-gray-700 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
+<p class="text-gray-400 text-sm mb-4 md:mb-0">© 2025 FT Seguridad. Todos los derechos reservados.</p>
+<div class="flex space-x-4">
+<a href="#" class="text-gray-400 hover:text-primary transition-colors text-sm">Política de Privacidad</a>
+<a href="#" class="text-gray-400 hover:text-primary transition-colors text-sm">Términos y Condiciones</a>
+</div>
+</div>
+</div>
+</footer>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+// Mobile menu toggle
+const menuButton = document.querySelector('button');
+menuButton.addEventListener('click', function() {
+const nav = document.querySelector('nav');
+nav.classList.toggle('hidden');
+});
+});
+</script>
+</body>
+</html>
