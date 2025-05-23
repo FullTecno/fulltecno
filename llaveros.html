@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Súper Conversor de Números RFID (Tabla de Resultados)</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background-color: #eef4f8;
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            max-width: 1000px; /* Increased max-width */
+            margin: 30px auto;
+            border: 1px solid #ddd;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 2em;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .input-group, .output-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        select, input[type="text"] {
+            width: calc(100% - 22px);
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1.1em;
+            box-sizing: border-box;
+        }
+        input[type="text"][readonly] {
+            background-color: #f8f8f8;
+            color: #555;
+        }
+        textarea {
+            width: calc(100% - 22px);
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1em;
+            min-height: 250px; /* Make textarea taller for table output */
+            resize: vertical;
+            background-color: #f8f8f8;
+            color: #555;
+            white-space: pre; /* Preserve whitespace for column alignment */
+            font-family: 'Consolas', 'Courier New', monospace; /* Monospace font for better alignment */
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 15px 25px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.2em;
+            width: 100%;
+            margin-top: 15px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .info-text {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+            margin-bottom: 15px;
+        }
+        .error-message {
+            color: #e74c3c;
+            font-weight: bold;
+            margin-top: 10px;
+            font-size: 0.95em;
+        }
+        hr {
+            border: 0;
+            height: 1px;
+            background: #eee;
+            margin: 30px 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Súper Conversor de Números RFID FTGroup</h1>
+
+    <div class="input-group">
+        <label for="conversionType">Selecciona el formato de entrada de los números:</label>
+        <select id="conversionType" onchange="clearInputs()">
+            <option value="decimal">Decimal</option>
+            <option value="binario">Binario (ej. 0111...)</option>
+            <option value="hexadecimal">Hexadecimal (ej. 796F55)</option>
+            <option value="decimal2">Decimal2 (ej. 12128421 - 8+16 bits concatenados)</option>
+        </select>
+    </div>
+
+    <div class="input-group">
+        <label for="inputSeparator">Separador de registros (entre números):</label>
+        <select id="inputSeparator">
+            <option value=",">Coma (,)</option>
+            <option value=";">Punto y Coma (;)</option>
+            <option value="\n">Salto de Línea (Enter)</option>
+            <option value=" ">Espacio ( )</option>
+            <option value="\"">Comillas (")</option>
+            <option value="other">Otro (especificar abajo)</option>
+        </select>
+        <input type="text" id="customSeparator" placeholder="Si elegiste 'Otro', especifica aquí" style="display:none; margin-top: 10px;">
+    </div>
+
+    <div class="input-group">
+        <label for="inputNumbers">Introduce los números aquí:</label>
+        <textarea id="inputNumbers" placeholder="Pega tus números aquí, separados por el delimitador elegido. Ej: 7958277, 123456, 987654" oninput="clearResults()"></textarea>
+        <div class="info-text" id="inputInfo">
+            Introduce números en formato **Decimal**. Si son varios, sepáralos por **Coma (,).**
+        </div>
+        <div id="errorMessage" class="error-message"></div>
+    </div>
+
+    <button onclick="performConversion()">Realizar Conversión</button>
+
+    <hr>
+
+    <div class="output-group">
+        <label for="outputResults">Resultados (copia y pega en Excel):</label>
+        <textarea id="outputResults" readonly></textarea>
+        <div class="info-text">
+            *Copia el texto de arriba y pégalo directamente en una hoja de cálculo (Excel, Google Sheets, LibreOffice Calc) para una visualización tabular.*
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- Helper Functions ---
+    // Pad binary string to 24 bits
+    function padBinary24(binaryString) {
+        return binaryString.padStart(24, '0');
+    }
+
+    // Validate if a string is a valid binary string (for any length)
+    function isValidBinary(str) {
+        return /^[01]+$/.test(str);
+    }
+
+    // Validate if a string is a valid hexadecimal string
+    function isValidHex(str) {
+        return /^[0-9a-fA-F]+$/.test(str);
+    }
+
+    // --- Core Conversion Logic Functions (adapted for unified output) ---
+
+    // Converts a single value to all formats
+    function convertAllFormats(inputValue, inputFormat) {
+        let decimal = '';
+        let binario24 = '';
+        let hexadecimal = '';
+        let decimal2 = '';
+        let error = null;
+        let originalInput = inputValue; // Keep track of the original input string
+
+        try {
+            switch (inputFormat) {
+                case 'decimal':
+                    const decVal = parseInt(inputValue, 10);
+                    if (isNaN(decVal) || decVal < 0 || decVal > 16777215) { // 2^24 - 1
+                        error = `Valor decimal fuera de rango (0-16777215) o inválido: ${originalInput}`;
+                        break;
+                    }
+                    decimal = decVal;
+                    binario24 = decimal.toString(2).padStart(24, '0');
+                    hexadecimal = decimal.toString(16).toUpperCase().padStart(6, '0');
+
+                    // Calculate Decimal2
+                    const primeros8bitsBin_dec = binario24.substring(0, 8);
+                    const restantes16bitsBin_dec = binario24.substring(8, 24);
+                    const decimal8bit_dec = parseInt(primeros8bitsBin_dec, 2);
+                    const decimal16bit_dec = parseInt(restantes16bitsBin_dec, 2);
+                    decimal2 = String(decimal8bit_dec) + String(decimal16bit_dec); // Keep as string for decimal2
+                    break;
+
+                case 'binario':
+                    if (!isValidBinary(inputValue)) {
+                        error = `No es un binario válido: ${originalInput}`;
+                        break;
+                    }
+                    // Pad to 24 bits only if it's less than 24 for context, but original could be longer if user makes a mistake
+                    let tempBinario = inputValue;
+                    if (tempBinario.length > 24) {
+                         error = `Binario excede 24 bits (se esperaba <= 24 bits): ${originalInput}`;
+                         break;
+                    }
+                    binario24 = tempBinario.padStart(24, '0');
+
+                    decimal = parseInt(binario24, 2);
+                    hexadecimal = decimal.toString(16).toUpperCase().padStart(6, '0');
+
+                    // Calculate Decimal2
+                    const p8b_bin = binario24.substring(0, 8);
+                    const r16b_bin = binario24.substring(8, 24);
+                    const dec8_bin = parseInt(p8b_bin, 2);
+                    const dec16_bin = parseInt(r16b_bin, 2);
+                    decimal2 = String(dec8_bin) + String(dec16_bin); // Keep as string for decimal2
+                    break;
+
+                case 'hexadecimal':
+                    if (!isValidHex(inputValue)) {
+                        error = `No es un hexadecimal válido: ${originalInput}`;
+                        break;
+                    }
+                    const decValHex = parseInt(inputValue, 16);
+                    if (isNaN(decValHex) || decValHex < 0 || decValHex > 16777215) { // 2^24 - 1
+                         error = `Valor hexadecimal fuera de rango (0-FFFFFF) o inválido: ${originalInput}`;
+                         break;
+                    }
+                    decimal = decValHex;
+                    hexadecimal = inputValue.toUpperCase().padStart(6, '0');
+                    binario24 = decimal.toString(2).padStart(24, '0');
+
+                    // Calculate Decimal2
+                    const p8h_bin = binario24.substring(0, 8);
+                    const r16h_bin = binario24.substring(8, 24);
+                    const dec8h_dec = parseInt(p8h_bin, 2);
+                    const dec16h_dec = parseInt(r16h_bin, 2);
+                    decimal2 = String(dec8h_dec) + String(dec16h_dec); // Keep as string for decimal2
+                    break;
+
+                case 'decimal2':
+                    const strDecimal2 = String(inputValue);
+                    let foundSplit = false;
+                    let tempDecimal8bit = 0;
+                    let tempDecimal16bit = 0;
+
+                    // Try to split based on first part being 1 to 3 digits (max 255)
+                    for (let i = 1; i <= 3 && i < strDecimal2.length; i++) {
+                        const potential8bitStr = strDecimal2.substring(0, i);
+                        const potential16bitStr = strDecimal2.substring(i);
+
+                        const potential8bitDec = parseInt(potential8bitStr);
+                        const potential16bitDec = parseInt(potential16bitStr);
+
+                        if (!isNaN(potential8bitDec) && !isNaN(potential16bitDec) &&
+                            potential8bitDec >= 0 && potential8bitDec <= 255 && // 8-bit range
+                            potential16bitDec >= 0 && potential16bitDec <= 65535) { // 16-bit range
+                            tempDecimal8bit = potential8bitDec;
+                            tempDecimal16bit = potential16bitDec;
+                            foundSplit = true;
+                            break;
+                        }
+                    }
+
+                    if (!foundSplit) {
+                        error = `Valor Decimal2 inválido o fuera de rango (componentes 8-bit y 16-bit): ${originalInput}`;
+                        break;
+                    }
+
+                    decimal2 = originalInput; // Keep original decimal2 string as is
+                    const bin8_d2 = tempDecimal8bit.toString(2).padStart(8, '0');
+                    const bin16_d2 = tempDecimal16bit.toString(2).padStart(16, '0');
+                    binario24 = bin8_d2 + bin16_d2;
+                    decimal = parseInt(binario24, 2);
+                    hexadecimal = decimal.toString(16).toUpperCase().padStart(6, '0');
+                    break;
+
+                default:
+                    error = `Formato de entrada '${inputFormat}' no soportado.`;
+            }
+        } catch (e) {
+            error = `Error interno procesando '${originalInput}': ${e.message}`;
+        }
+
+        // Ensure outputs are strings, and use empty string for errors/inapplicable values
+        decimal = decimal === '' || isNaN(decimal) ? '' : String(decimal);
+        binario24 = binario24 === '' ? '' : binario24;
+        hexadecimal = hexadecimal === '' ? '' : hexadecimal;
+        decimal2 = decimal2 === '' ? '' : decimal2; // Decimal2 is already string in this case
+
+        return {
+            originalInput: originalInput,
+            inputFormat: inputFormat,
+            decimal: decimal,
+            binario24: binario24,
+            hexadecimal: hexadecimal,
+            decimal2: decimal2,
+            error: error
+        };
+    }
+
+    // --- UI/Main Logic ---
+
+    function performConversion() {
+        const inputFormat = document.getElementById('conversionType').value;
+        const inputRaw = document.getElementById('inputNumbers').value;
+        const errorMessageDiv = document.getElementById('errorMessage');
+        const outputResultsArea = document.getElementById('outputResults');
+        let results = [];
+        errorMessageDiv.textContent = ''; // Clear previous errors
+
+        // Determine separator
+        let separator = document.getElementById('inputSeparator').value;
+        if (separator === 'other') {
+            separator = document.getElementById('customSeparator').value;
+        }
+
+        let inputs;
+        // Special handling for newline separator to correctly split multi-line inputs
+        if (separator === '\\n') {
+            inputs = inputRaw.split(/\r?\n/).map(item => item.trim()).filter(item => item !== '');
+        } else {
+            // Escape special regex characters if it's not a special case
+            const escapedSeparator = separator.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+            inputs = inputRaw.split(new RegExp(escapedSeparator)).map(item => item.trim()).filter(item => item !== '');
+        }
+
+
+        if (inputs.length === 0) {
+            errorMessageDiv.textContent = 'Por favor, introduce al menos un número para convertir.';
+            outputResultsArea.value = '';
+            return;
+        }
+
+        // Prepare table headers
+        const headers = ["Entrada Original", "Formato Entrada", "Decimal", "Binario (24 bits)", "Hexadecimal (6 digitos)", "Decimal2 (8+16 concatenado)"];
+        results.push(headers.join('\t')); // Use tab for easy pasting into Excel
+
+        inputs.forEach((inputVal) => {
+            const conversionResult = convertAllFormats(inputVal, inputFormat);
+            if (conversionResult.error) {
+                // If there's an error, still show the original input and format, but fill other columns with error message
+                results.push([
+                    conversionResult.originalInput,
+                    conversionResult.inputFormat,
+                    '', // Decimal
+                    '', // Binario
+                    '', // Hexadecimal
+                    '', // Decimal2
+                    conversionResult.error // Put error message in an extra column or as last element
+                ].join('\t'));
+            } else {
+                results.push([
+                    conversionResult.originalInput,
+                    conversionResult.inputFormat,
+                    conversionResult.decimal,
+                    conversionResult.binario24,
+                    conversionResult.hexadecimal,
+                    conversionResult.decimal2
+                ].join('\t'));
+            }
+        });
+
+        outputResultsArea.value = results.join('\n');
+    }
+
+    // --- UI Utility Functions ---
+
+    function clearResults() {
+        document.getElementById('outputResults').value = '';
+        document.getElementById('errorMessage').textContent = '';
+    }
+
+    function clearInputs() {
+        document.getElementById('inputNumbers').value = '';
+        clearResults();
+        // Update info text based on selected conversion type
+        const conversionType = document.getElementById('conversionType').value;
+        const infoText = document.getElementById('inputInfo');
+        const customSeparatorInput = document.getElementById('customSeparator');
+        const inputSeparatorSelect = document.getElementById('inputSeparator');
+
+        if (inputSeparatorSelect.value === 'other') {
+            customSeparatorInput.style.display = 'block';
+        } else {
+            customSeparatorInput.style.display = 'none';
+            customSeparatorInput.value = ''; // Clear custom separator when not in use
+        }
+
+
+        let defaultExample = '';
+        let infoMessage = '';
+
+        switch(conversionType) {
+            case 'decimal':
+                infoMessage = 'Introduce números en formato **Decimal**.';
+                defaultExample = '7958277\n123456\n987654'; // Default to newline example
+                inputSeparatorSelect.value = '\\n'; // Set default separator to newline
+                break;
+            case 'binario':
+                infoMessage = 'Introduce números en formato **Binario** (para RFID, idealmente 24 bits, pero se aceptan otras longitudes para conversión general).';
+                defaultExample = '011110010110111101010101\n000111100010000000000000';
+                inputSeparatorSelect.value = '\\n';
+                break;
+            case 'hexadecimal':
+                infoMessage = 'Introduce números en formato **Hexadecimal** (para RFID, idealmente 6 dígitos).';
+                defaultExample = '796F55\n1E2000';
+                inputSeparatorSelect.value = '\\n';
+                break;
+            case 'decimal2':
+                infoMessage = 'Introduce números en formato **Decimal2** (el resultado de concatenar el decimal de los primeros 8 bits y los restantes 16 bits).';
+                defaultExample = '12128421\n30737408';
+                inputSeparatorSelect.value = '\\n';
+                break;
+        }
+        infoText.innerHTML = infoMessage + '<br>Si son varios, sepáralos por el "Separador de registros" elegido.';
+        document.getElementById('inputNumbers').value = defaultExample;
+    }
+
+    // Event listener for custom separator visibility and re-trigger clearInputs
+    document.getElementById('inputSeparator').addEventListener('change', function() {
+        const customSeparatorInput = document.getElementById('customSeparator');
+        if (this.value === 'other') {
+            customSeparatorInput.style.display = 'block';
+        } else {
+            customSeparatorInput.style.display = 'none';
+            customSeparatorInput.value = ''; // Clear custom separator when not in use
+        }
+        clearInputs(); // Clear and update examples based on new selection
+    });
+
+    // Run initial setup on page load
+    window.onload = function() {
+        clearInputs(); // Sets default example and info
+        performConversion(); // Perform conversion for the initial example
+    };
+</script>
+
+</body>
+</html>
