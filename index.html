@@ -211,7 +211,7 @@ border-color: #40E0D0;
 <!-- Electromagnetic Locks -->
 <div class="product-card bg-white rounded shadow-lg overflow-hidden transition-all duration-300">
 <div class="h-48 overflow-hidden">
-<img src="https://readdy.ai/api/search-image?query=professional%20electromagnetic%20door%20lock%20installed%20on%20glass%20door%2C%20modern%20office%20setting%2C%20high%20security%20device%2C%20detailed%20product%20shot%20on%20white%20background%2C%20turquoise%20accent%20lighting&width=600&height=400&seq=11111&orientation=landscape" alt="Cerradura Electromagnética" class="w-full h-full object-cover object-top">
+<img src="/images/productos/cerradura.jpg" alt="Cerradura Electromagnética" class="w-full h-full object-cover object-top">
 </div>
 <div class="p-6">
 <h3 class="text-lg font-bold text-secondary mb-2">Cerraduras Electromagnéticas</h3>
@@ -368,7 +368,7 @@ border-color: #40E0D0;
 <a href="https://www.fera.com.ar" target="_blank" class="group">
 <div class="bg-white p-8 rounded shadow-lg hover:shadow-xl transition-all duration-300">
 <div class="aspect-video mb-6 overflow-hidden rounded bg-gray-50 flex items-center justify-center">
-<img src="https://readdy.ai/api/search-image?query=modern%20real%20estate%20company%20logo%2C%20professional%20corporate%20design%2C%20minimal%20style%2C%20elegant%20and%20sophisticated%2C%20turquoise%20and%20black%20color%20scheme%2C%20clean%20background&width=400&height=225&seq=12121&orientation=landscape" alt="Inmobiliaria Fera" class="w-full h-full object-contain p-6">
+<img src="/images/logos/fera.jpg" alt="Inmobiliaria Fera" class="w-full h-full object-contain p-6">
 </div>
 <div class="text-center">
 <h4 class="text-lg font-bold text-secondary mb-2">Inmobiliaria Fera</h4>
@@ -384,7 +384,7 @@ border-color: #40E0D0;
 </a>
 <a href="https://www.cckonex.org" target="_blank" class="group">
 <div class="bg-white p-8 rounded shadow-lg hover:shadow-xl transition-all duration-300">
-<div class="aspect-video mb-6 overflow-hidden rounded bg-gray-50 flex items-center justify-center">
+<div class="aspect-video mb-6 overflow-hidden rounded bg-gray-50 flex items-center justify-center client-logo">
 <img src="https://readdy.ai/api/search-image?query=cultural%20center%20logo%2C%20artistic%20and%20modern%20design%2C%20creative%20and%20dynamic%2C%20turquoise%20and%20black%20color%20scheme%2C%20clean%20background&width=400&height=225&seq=12122&orientation=landscape" alt="Ciudad Cultural Konex" class="w-full h-full object-contain p-6">
 </div>
 <div class="text-center">
@@ -401,7 +401,7 @@ border-color: #40E0D0;
 </a>
 <a href="https://www.facyca.com.ar" target="_blank" class="group">
 <div class="bg-white p-8 rounded shadow-lg hover:shadow-xl transition-all duration-300">
-<div class="aspect-video mb-6 overflow-hidden rounded bg-gray-50 flex items-center justify-center">
+<div class="aspect-video mb-6 overflow-hidden rounded bg-gray-50 flex items-center justify-center client-logo">
 <img src="https://readdy.ai/api/search-image?query=industrial%20company%20logo%2C%20professional%20corporate%20design%2C%20modern%20and%20technical%2C%20turquoise%20and%20black%20color%20scheme%2C%20clean%20background&width=400&height=225&seq=12123&orientation=landscape" alt="Facya" class="w-full h-full object-contain p-6">
 </div>
 <div class="text-center">
@@ -418,7 +418,7 @@ border-color: #40E0D0;
 </a>
 <a href="http://bellmor.com.ar/bm" target="_blank" class="group">
 <div class="bg-white p-8 rounded shadow-lg hover:shadow-xl transition-all duration-300">
-<div class="aspect-video mb-6 overflow-hidden rounded bg-gray-50 flex items-center justify-center">
+<div class="aspect-video mb-6 overflow-hidden rounded bg-gray-50 flex items-center justify-center client-logo">
 <img src="https://readdy.ai/api/search-image?query=manufacturing%20industry%20logo%2C%20professional%20corporate%20design%2C%20industrial%20and%20modern%2C%20turquoise%20and%20black%20color%20scheme%2C%20clean%20background&width=400&height=225&seq=12124&orientation=landscape" alt="Industrias Bellmor" class="w-full h-full object-contain p-6">
 </div>
 <div class="text-center">
@@ -761,6 +761,42 @@ border-color: #40E0D0;
 </footer>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+// Load product images
+async function loadProductImages() {
+  const productCards = document.querySelectorAll('.product-card');
+  try {
+    const response = await fetch('/images/productos/');
+    const files = await response.json();
+    const images = files.filter(file => file.endsWith('.jpg') || file.endsWith('.png'));
+    
+    productCards.forEach((card, index) => {
+      if (images[index]) {
+        const img = card.querySelector('img');
+        img.src = `/images/productos/${images[index]}`;
+      }
+    });
+  } catch (error) {
+    console.error('Error loading product images:', error);
+  }
+}
+// Load client logos
+async function loadClientLogos() {
+  const logoContainers = document.querySelectorAll('.client-logo');
+  try {
+    const response = await fetch('/images/logos/');
+    const files = await response.json();
+    const logos = files.filter(file => file.endsWith('.jpg') || file.endsWith('.png'));
+    
+    logoContainers.forEach((container, index) => {
+      if (logos[index]) {
+        const img = container.querySelector('img');
+        img.src = `/images/logos/${logos[index]}`;
+      }
+    });
+  } catch (error) {
+    console.error('Error loading client logos:', error);
+  }
+}
 // Mobile menu toggle
 const menuButton = document.querySelector('button');
 menuButton.addEventListener('click', function() {
@@ -894,6 +930,8 @@ window.closeLightbox = closeLightbox;
 initHeroSlider();
 initGallery();
 createLightbox();
+loadProductImages();
+loadClientLogos();
 });
 </script>
 <style>
