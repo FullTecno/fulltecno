@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FT Group Systems - Accesos </title>
+<title>FT - Control de Acceso Profesional</title>
 <script src="https://cdn.tailwindcss.com/3.4.16"></script>
 <script>tailwind.config={theme:{extend:{colors:{primary:'#40E0D0',secondary:'#000000'},borderRadius:{'none':'0px','sm':'4px',DEFAULT:'8px','md':'12px','lg':'16px','xl':'20px','2xl':'24px','3xl':'32px','full':'9999px','button':'8px'}}}}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,7 +19,7 @@ font-family: 'Montserrat', sans-serif;
 .hero-section {
 background-image: linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.4)), url('https://readdy.ai/api/search-image?query=modern%20office%20building%20entrance%20with%20security%20access%20control%20system%2C%20professional%20corporate%20environment%2C%20clean%20and%20minimal%20design%2C%20turquoise%20and%20black%20color%20scheme%2C%20high-tech%20security%20equipment%2C%20blurred%20background%20with%20people%20walking&width=1920&height=800&seq=12345&orientation=landscape');
 background-size: cover;
-background-position: center;
+background-position: center;
 }
 .service-card:hover {
 transform: translateY(-5px);
@@ -60,8 +60,12 @@ border-color: #40E0D0;
 </div>
 </header>
 <!-- Hero Section -->
-<section class="hero-section w-full h-[600px] flex items-center">
-<div class="container mx-auto px-4">
+<section class="hero-section w-full h-[600px] flex items-center relative overflow-hidden">
+<div class="absolute inset-0 bg-black/50 z-10"></div>
+<div id="heroSlider" class="absolute inset-0">
+<div class="hero-slide absolute inset-0 opacity-0 transition-opacity duration-1000 bg-cover bg-center" style="background-image: linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.4)), url('/images/portada/slide1.jpg')"></div>
+</div>
+<div class="container mx-auto px-4 relative z-20">
 <div class="max-w-2xl">
 <h1 class="text-4xl md:text-5xl font-bold text-white mb-6">Soluciones Avanzadas en Control de Acceso</h1>
 <p class="text-lg text-gray-200 mb-8">Proteja su empresa o consorcio con nuestros sistemas de seguridad de última generación. Ofrecemos tecnología RFID, biométrica y reconocimiento facial para garantizar el acceso seguro a sus instalaciones.</p>
@@ -69,6 +73,29 @@ border-color: #40E0D0;
 <button class="bg-primary text-secondary px-6 py-3 font-semibold !rounded-button whitespace-nowrap hover:bg-opacity-90 transition-all">Solicitar Cotización</button>
 <button class="bg-transparent border-2 border-white text-white px-6 py-3 font-semibold !rounded-button whitespace-nowrap hover:bg-white hover:bg-opacity-10 transition-all">Conocer Más</button>
 </div>
+</div>
+</div>
+</section>
+<!-- Gallery Section -->
+<section class="py-16 bg-gray-50">
+<div class="container mx-auto px-4">
+<div class="text-center mb-12">
+<h2 class="text-3xl font-bold text-secondary mb-4">Galería de Proyectos</h2>
+<p class="text-gray-600 max-w-2xl mx-auto">Explore nuestros trabajos realizados en diferentes áreas de especialización.</p>
+</div>
+<!-- Gallery Tabs -->
+<div class="flex justify-center mb-8">
+<div class="inline-flex bg-white rounded-full p-1 shadow-lg">
+<button class="gallery-tab active px-6 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all" data-gallery="control">Control de Acceso</button>
+<button class="gallery-tab px-6 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all" data-gallery="cctv">Cámaras de Seguridad</button>
+<button class="gallery-tab px-6 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all" data-gallery="it">Soporte IT</button>
+</div>
+</div>
+<!-- Gallery Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<div id="galleryControl" class="gallery-container active"></div>
+<div id="galleryCctv" class="gallery-container hidden"></div>
+<div id="galleryIt" class="gallery-container hidden"></div>
 </div>
 </div>
 </section>
@@ -571,7 +598,7 @@ border-color: #40E0D0;
 </div>
 <div>
 <h4 class="font-medium text-secondary mb-1">Dirección</h4>
-<p class="text-gray-600">Raquel Español 149 Wilde (Avellaneda) CP1875 , Buenos Aires</p>
+<p class="text-gray-600">Av. Corrientes 1234, Piso 5, Oficina B<br>C1043AAZ, Buenos Aires, Argentina</p>
 </div>
 </div>
 <div class="flex items-start">
@@ -583,7 +610,7 @@ border-color: #40E0D0;
 <div>
 <h4 class="font-medium text-secondary mb-1">Teléfono</h4>
 <p class="text-gray-600">+54 11 4567-8901</p>
-<p class="text-gray-600">+54 11 3322-2588 (Soporte Técnico)</p>
+<p class="text-gray-600">+54 11 2345-6789 (Soporte Técnico)</p>
 </div>
 </div>
 <div class="flex items-start">
@@ -594,8 +621,8 @@ border-color: #40E0D0;
 </div>
 <div>
 <h4 class="font-medium text-secondary mb-1">Correo Electrónico</h4>
-<p class="text-gray-600">info@ftgroup.ar</p>
-<p class="text-gray-600">soporte@ftgroup.ar</p>
+<p class="text-gray-600">info@ftseguridad.com</p>
+<p class="text-gray-600">soporte@ftseguridad.com</p>
 </div>
 </div>
 <div class="flex items-start">
@@ -700,19 +727,19 @@ border-color: #40E0D0;
 <div class="w-5 h-5 flex items-center justify-center text-primary mr-2 mt-0.5">
 <i class="ri-map-pin-line"></i>
 </div>
-<span class="text-gray-400">Raquel Español 149 Wilde (Avellaneda) CP1875 , Buenos Aires</span>
+<span class="text-gray-400">Av. Corrientes 1234, Buenos Aires</span>
 </li>
 <li class="flex items-start">
 <div class="w-5 h-5 flex items-center justify-center text-primary mr-2 mt-0.5">
 <i class="ri-phone-line"></i>
 </div>
-<span class="text-gray-400">+54 11 33222588</span>
+<span class="text-gray-400">+54 11 4567-8901</span>
 </li>
 <li class="flex items-start">
 <div class="w-5 h-5 flex items-center justify-center text-primary mr-2 mt-0.5">
 <i class="ri-mail-line"></i>
 </div>
-<span class="text-gray-400">info@ftgroup.ar</span>
+<span class="text-gray-400">info@ftseguridad.com</span>
 </li>
 <li class="flex items-start">
 <div class="w-5 h-5 flex items-center justify-center text-primary mr-2 mt-0.5">
@@ -724,7 +751,7 @@ border-color: #40E0D0;
 </div>
 </div>
 <div class="border-t border-gray-700 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
-<p class="text-gray-400 text-sm mb-4 md:mb-0">© 2025 FT Group Systems. Todos los derechos reservados.</p>
+<p class="text-gray-400 text-sm mb-4 md:mb-0">© 2025 FT Seguridad. Todos los derechos reservados.</p>
 <div class="flex space-x-4">
 <a href="#" class="text-gray-400 hover:text-primary transition-colors text-sm">Política de Privacidad</a>
 <a href="#" class="text-gray-400 hover:text-primary transition-colors text-sm">Términos y Condiciones</a>
@@ -740,7 +767,148 @@ menuButton.addEventListener('click', function() {
 const nav = document.querySelector('nav');
 nav.classList.toggle('hidden');
 });
+// Hero Slider
+function initHeroSlider() {
+const slider = document.getElementById('heroSlider');
+let currentSlide = 0;
+let slides = [];
+// Function to load images from directory
+async function loadHeroImages() {
+try {
+const response = await fetch('/images/portada/');
+const files = await response.json();
+slides = files.filter(file => file.endsWith('.jpg') || file.endsWith('.png'));
+if (slides.length > 0) {
+createSlides();
+startSlideshow();
+}
+} catch (error) {
+console.error('Error loading hero images:', error);
+}
+}
+function createSlides() {
+slides.forEach((slide, index) => {
+const slideDiv = document.createElement('div');
+slideDiv.className = `hero-slide absolute inset-0 opacity-0 transition-opacity duration-1000 bg-cover bg-center`;
+slideDiv.style.backgroundImage = `linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.4)), url('/images/portada/${slide}')`;
+slider.appendChild(slideDiv);
+});
+}
+function startSlideshow() {
+const slideElements = document.querySelectorAll('.hero-slide');
+if (slideElements.length > 0) {
+slideElements[0].classList.add('opacity-100');
+setInterval(() => {
+slideElements[currentSlide].classList.remove('opacity-100');
+currentSlide = (currentSlide + 1) % slideElements.length;
+slideElements[currentSlide].classList.add('opacity-100');
+}, 5000);
+}
+}
+loadHeroImages();
+}
+// Gallery System
+function initGallery() {
+const galleries = {
+control: document.getElementById('galleryControl'),
+cctv: document.getElementById('galleryCctv'),
+it: document.getElementById('galleryIt')
+};
+const tabs = document.querySelectorAll('.gallery-tab');
+async function loadGalleryImages(type) {
+try {
+const response = await fetch(`/images/${type}/`);
+const files = await response.json();
+const images = files.filter(file => file.endsWith('.jpg') || file.endsWith('.png'));
+const container = galleries[type];
+container.innerHTML = '';
+images.forEach(image => {
+const imgWrapper = document.createElement('div');
+imgWrapper.className = 'relative group overflow-hidden rounded-lg shadow-lg cursor-pointer';
+const img = document.createElement('img');
+img.src = `/images/${type}/${image}`;
+img.alt = `${type} project image`;
+img.className = 'w-full h-64 object-cover transition-transform duration-300 group-hover:scale-110';
+imgWrapper.appendChild(img);
+container.appendChild(imgWrapper);
+imgWrapper.addEventListener('click', () => {
+openLightbox(img.src);
+});
+});
+} catch (error) {
+console.error(`Error loading ${type} gallery images:`, error);
+}
+}
+function switchGallery(type) {
+Object.values(galleries).forEach(gallery => {
+gallery.classList.add('hidden');
+});
+galleries[type].classList.remove('hidden');
+tabs.forEach(tab => {
+tab.classList.remove('active', 'bg-primary', 'text-white');
+if (tab.dataset.gallery === type) {
+tab.classList.add('active', 'bg-primary', 'text-white');
+}
+});
+}
+tabs.forEach(tab => {
+tab.addEventListener('click', () => {
+const type = tab.dataset.gallery;
+switchGallery(type);
+loadGalleryImages(type);
+});
+});
+// Load initial gallery
+loadGalleryImages('control');
+}
+// Lightbox
+function createLightbox() {
+const lightbox = document.createElement('div');
+lightbox.id = 'lightbox';
+lightbox.className = 'fixed inset-0 bg-black bg-opacity-90 z-50 hidden flex items-center justify-center';
+document.body.appendChild(lightbox);
+lightbox.addEventListener('click', (e) => {
+if (e.target === lightbox) {
+closeLightbox();
+}
+});
+}
+function openLightbox(imageSrc) {
+const lightbox = document.getElementById('lightbox');
+lightbox.innerHTML = `
+<div class="relative max-w-4xl mx-auto">
+<img src="${imageSrc}" alt="Lightbox image" class="max-h-[90vh] w-auto">
+<button class="absolute top-4 right-4 text-white text-2xl" onclick="closeLightbox()">
+<i class="ri-close-line"></i>
+</button>
+</div>
+`;
+lightbox.classList.remove('hidden');
+}
+function closeLightbox() {
+const lightbox = document.getElementById('lightbox');
+lightbox.classList.add('hidden');
+}
+window.closeLightbox = closeLightbox;
+// Initialize everything
+initHeroSlider();
+initGallery();
+createLightbox();
 });
 </script>
+<style>
+.gallery-tab.active {
+background-color: #40E0D0;
+color: white;
+}
+.gallery-container {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+gap: 1.5rem;
+}
+.gallery-container.hidden {
+display: none;
+}
+</style>
 </body>
 </html>
