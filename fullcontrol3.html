@@ -633,8 +633,11 @@ function parseLog(content) {
                                 <input type="text" value="${tarjeta.id}" onchange="updateTarjeta(${index}, 'id', this.value)">
                             </div>
                             <div>
-                                <label>ID de Horario:</label>
-                                <input type="number" value="${tarjeta.horarioId}" min="1" onchange="updateTarjeta(${index}, 'horarioId', this.value)">
+                              <label>ID de Horario:</label>
+<input type="number" value="${tarjeta.horarioId}" min="1" onchange="updateTarjeta(${index}, 'horarioId', this.value)">
+<p style="margin: 5px 0; color: #555;">
+    ${getHorarioDetalle(tarjeta.horarioId)}
+</p>
                             </div>
                         </div>
                         <label>Puertas Habilitadas:</label>
@@ -967,6 +970,23 @@ function parseLog(content) {
             document.head.appendChild(script);
         }
 
+function getHorarioDetalle(horarioId) {
+    const horario = state.horarios.find(h => h.id === horarioId);
+    if (!horario) return '(horario no encontrado)';
+    
+    const dias = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+    const diasHabilitados = horario.dias
+        .map((v, i) => v ? dias[i] : null)
+        .filter(d => d !== null)
+        .join(', ');
+
+    return `(${diasHabilitados} - ${horario.horaInicio} a ${horario.horaFin})`;
+}
+
+
+
+
+        
         // ====================== PRUEBAS ======================
         function testSystem() {
             // Probar con tus archivos de ejemplo
