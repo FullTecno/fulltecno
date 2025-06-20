@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>FTgroup - Full Control 4.0 by Lucas David Toffolo</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --danger: #e74c3c;
+            --success: #2ecc71;
+            --dark: #2c3e50;
+            --gray: #95a5a6;
+        }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f9f9f9;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: var(--dark);
+            text-align: center;
+            margin-bottom: 5px;
+        }
+        .subtitle {
+            text-align: center;
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .mode-btn {
+            flex: 1;
+            padding: 12px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .file-upload {
+            background: #f1f1f1;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .tab-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 5px;
+        }
+        .tab-btn {
+            padding: 10px 15px;
+            background: #e0e0e0;
+            border: none;
+            border-radius: 5px 5px 0 0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+        .tab-content {
+            display: none;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 0 0 5px 5px;
+            background: white;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+        .log-entry {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+            background: #f8f9fa;
+            font-family: monospace;
+        }
+        .log-denied {
+            border-left: 4px solid var(--danger);
+        }
+        .log-allowed {
+            border-left: 4px solid var(--success);
+        }
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .filters input, .filters select {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            min-width: 120px;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .btn {
+            padding: 10px 15px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border: none;
+        }
+        .btn-success {
+            background: var(--success);
+            color: white;
+            border: none;
+        }
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+            border: none;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+        #fileStatus {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+        .config-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 5px;
+        }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        input, select, textarea {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: var(--gray);
+            font-size: 12px;
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .badge-primary {
+            background: var(--primary);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>FTgroup - Full Control 4.0</h1>
+        <p class="subtitle">by Lucas David Toffolo</p>
+
+        <!-- Selector de Modo -->
+        <div class="mode-selector">
+            <button id="modeEdit" class="mode-btn btn-primary">📂 Editar SD Existente</button>
+            <button id="modeNew" class="mode-btn btn-outline">🆕 Nueva Configuración</button>
+        </div>
+
+        <!-- Carga de Archivos (Modo Edición) -->
+        <div id="fileUploadSection" class="file-upload">
+            <h3>📤 Subir Archivos desde la SD</h3>
+            <input type="file" id="fileInput" accept=".txt,.log" multiple>
+            <div id="fileStatus">No se han cargado archivos.</div>
+        </div>
+
+        <!-- Pestañas -->
+        <div class="tab-bar">
+            <button data-tab="tarjetas" class="tab-btn active">🔑 TARJETAS.txt</button>
+            <button data-tab="horarios" class="tab-btn">⏰ HORARIOS.txt</button>
+            <button data-tab="exit" class="tab-btn">🚪 EXIT.txt</button>
+            <button data-tab="tiempo" class="tab-btn">⏱️ TIEMPO.txt</button>
+            <button data-tab="log" class="tab-btn">📝 LOG.txt</button>
+        </div>
+
+        <!-- Contenido de Pestañas -->
+        <div id="tarjetas" class="tab-content active">
+            <div id="tarjetasContainer">
+                <h2>Configuración de Tarjetas</h2>
+                <div class="action-buttons">
+                    <button id="addTarjeta" class="btn btn-primary">➕ Añadir Tarjeta</button>
+                </div>
+                <div id="tarjetasList"></div>
+            </div>
+        </div>
+
+        <div id="horarios" class="tab-content">
+            <div id="horariosContainer">
+                <h2>Configuración de Horarios</h2>
+                <div class="action-buttons">
+                    <button id="addHorario" class="btn btn-primary">➕ Añadir Horario</button>
+                </div>
+                <div id="horariosList"></div>
+            </div>
+        </div>
+
+        <div id="exit" class="tab-content">
+            <div id="exitContainer">
+                <h2>Configuración de Pulsadores</h2>
+                <div class="grid-2">
+                    <div class="config-item">
+                        <h3>Pulsador 1</h3>
+                        <label>Puerta Asociada:</label>
+                        <select id="exit1">
+                            <option value="1">Puerta 1</option>
+                            <option value="2">Puerta 2</option>
+                            <option value="3">Puerta 3</option>
+                            <option value="4">Puerta 4</option>
+                        </select>
+                    </div>
+                    <div class="config-item">
+                        <h3>Pulsador 2</h3>
+                        <label>Puerta Asociada:</label>
+                        <select id="exit2">
+                            <option value="1">Puerta 1</option>
+                            <option value="2">Puerta 2</option>
+                            <option value="3">Puerta 3</option>
+                            <option value="4">Puerta 4</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tiempo" class="tab-content">
+            <div id="tiempoContainer">
+                <h2>Tiempos de Apertura</h2>
+                <div class="grid-4">
+                    <div class="config-item">
+                        <h3>Puerta 1</h3>
+                        <label>Tiempo (segundos):</label>
+                        <input type="number" id="tiempo1" min="1" value="2">
+                    </div>
+                    <div class="config-item">
+                        <h3>Puerta 2</h3>
+                        <label>Tiempo (segundos):</label>
+                        <input type="number" id="tiempo2" min="1" value="2">
+                    </div>
+                    <div class="config-item">
+                        <h3>Puerta 3</h3>
+                        <label>Tiempo (segundos):</label>
+                        <input type="number" id="tiempo3" min="1" value="2">
+                    </div>
+                    <div class="config-item">
+                        <h3>Puerta 4</h3>
+                        <label>Tiempo (segundos):</label>
+                        <input type="number" id="tiempo4" min="1" value="2">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="log" class="tab-content">
+            <div id="logContainer">
+                <h2>Registros de Acceso</h2>
+                <div class="filters">
+                    <input type="text" id="logSearch" placeholder="Buscar...">
+                    <select id="logFilterDoor">
+                        <option value="">Todas las puertas</option>
+                        <option value="1">Puerta 1</option>
+                        <option value="2">Puerta 2</option>
+                        <option value="3">Puerta 3</option>
+                        <option value="4">Puerta 4</option>
+                    </select>
+                    <select id="logFilterEvent">
+                        <option value="">Todos los eventos</option>
+                        <option value="permitido">Acceso permitido</option>
+                        <option value="denegado">Acceso denegado</option>
+                    </select>
+                    <button id="clearLog" class="btn btn-danger">🧹 Limpiar LOG</button>
+                    <button id="exportLog" class="btn btn-outline">📤 Exportar CSV</button>
+                </div>
+                <div id="logEntries"></div>
+            </div>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="action-buttons">
+            <button id="saveAll" class="btn btn-success">💾 Guardar Todo</button>
+            <button id="downloadAll" class="btn btn-primary">📥 Descargar Todo</button>
+            <button id="resetAll" class="btn btn-danger">🔄 Reiniciar</button>
+        </div>
+
+        <div class="footer">
+            FTgroup - Full Control 4.0 | by Lucas David Toffolo | 2024
+        </div>
+    </div>
+
+    <script>
+        // ====================== ESTADO GLOBAL ======================
+        const state = {
+            mode: 'new',
+            files: {},
+            tarjetas: [],
+            horarios: [],
+            exit: {1: 3, 2: 4}, // Default: Pulsador1→Puerta3, Pulsador2→Puerta4
+            tiempo: {1: 2, 2: 2, 3: 2, 4: 2}, // Tiempos por defecto: 2 segundos
+            log: []
+        };
+
+        // ====================== INICIALIZACIÓN ======================
+        document.addEventListener('DOMContentLoaded', () => {
+            setupEventListeners();
+            renderEmptyTemplates();
+        });
+
+        function setupEventListeners() {
+            // Selector de modo
+            document.getElementById('modeEdit').addEventListener('click', () => setMode('edit'));
+            document.getElementById('modeNew').addEventListener('click', () => setMode('new'));
+
+            // Selector de pestañas
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+            });
+
+            // Carga de archivos
+            document.getElementById('fileInput').addEventListener('change', handleFileUpload);
+
+            // Botones de acción
+            document.getElementById('addTarjeta').addEventListener('click', addNewTarjeta);
+            document.getElementById('addHorario').addEventListener('click', addNewHorario);
+            document.getElementById('saveAll').addEventListener('click', saveAllFiles);
+            document.getElementById('downloadAll').addEventListener('click', downloadAllFiles);
+            document.getElementById('resetAll').addEventListener('click', resetAll);
+            document.getElementById('clearLog').addEventListener('click', clearLog);
+            document.getElementById('exportLog').addEventListener('click', exportLog);
+
+            // Filtros de LOG
+            document.getElementById('logSearch').addEventListener('input', filterLog);
+            document.getElementById('logFilterDoor').addEventListener('change', filterLog);
+            document.getElementById('logFilterEvent').addEventListener('change', filterLog);
+        }
+
+        function renderEmptyTemplates() {
+            renderTarjetas();
+            renderHorarios();
+            renderExit();
+            renderTiempo();
+        }
+
+        // ====================== FUNCIONES PRINCIPALES ======================
+        function setMode(newMode) {
+            state.mode = newMode;
+            const uploadSection = document.getElementById('fileUploadSection');
+            
+            if (newMode === 'edit') {
+                uploadSection.style.display = 'block';
+                alert("Modo Edición: Sube los archivos de tu SD para editarlos.");
+            } else {
+                uploadSection.style.display = 'none';
+                alert("Modo Nueva Configuración: Genera archivos desde cero.");
+            }
+        }
+
+        function switchTab(tabId) {
+            // Oculta todos los contenidos
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Desactiva todos los botones
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Activa la pestaña seleccionada
+            document.getElementById(tabId).classList.add('active');
+            document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add('active');
+        }
+
+        // ====================== MANEJO DE ARCHIVOS ======================
+        function handleFileUpload(event) {
+            const files = event.target.files;
+            if (files.length === 0) return;
+
+            state.files = {};
+            const fileStatus = document.getElementById('fileStatus');
+            fileStatus.innerHTML = 'Procesando archivos...';
+
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    state.files[file.name] = e.target.result;
+                    parseFile(file.name, e.target.result);
+                    
+                    // Actualizar estado
+                    fileStatus.innerHTML = `Archivos cargados: ${Object.keys(state.files).join(', ')}`;
+                };
+                reader.readAsText(file);
+            });
+        }
+
+        function parseFile(filename, content) {
+            const lines = content.split('\n').filter(line => line.trim() !== '');
+            
+            switch(filename) {
+                case 'TARJETAS.txt':
+                    state.tarjetas = lines.map(line => {
+                        const [id, puertas, fechaInicio, fechaFin, horarioId] = line.split(',');
+                        return {
+                            id,
+                            puertas: puertas.split('').map(p => p === '1'),
+                            fechaInicio,
+                            fechaFin,
+                            horarioId
+                        };
+                    });
+                    renderTarjetas();
+                    break;
+                    
+                case 'HORARIOS.txt':
+                    state.horarios = lines.map(line => {
+                        const [id, dias, horaInicio, horaFin] = line.split(',');
+                        return {
+                            id,
+                            dias: dias.split('').map(d => d === '1'),
+                            horaInicio,
+                            horaFin
+                        };
+                    });
+                    renderHorarios();
+                    break;
+                    
+                case 'EXIT.txt':
+                    lines.forEach(line => {
+                        const [pulsador, puerta] = line.split(',');
+                        state.exit[pulsador] = puerta;
+                    });
+                    renderExit();
+                    break;
+                    
+                case 'TIEMPO.txt':
+                    lines.forEach(line => {
+                        const [puerta, tiempo] = line.split(',');
+                        state.tiempo[puerta] = tiempo;
+                    });
+                    renderTiempo();
+                    break;
+                    
+                case 'LOG.txt':
+                    state.log = lines.map(line => {
+                        const [tag, puerta, fechaHora, evento] = line.split(',');
+                        return { tag, puerta, fechaHora, evento };
+                    });
+                    renderLog();
+                    break;
+            }
+        }
+
+        // ====================== RENDERIZADO ======================
+        function renderTarjetas() {
+            const container = document.getElementById('tarjetasList');
+            container.innerHTML = '';
+            
+            state.tarjetas.forEach((tarjeta, index) => {
+                const tarjetaHTML = `
+                    <div class="config-item" data-index="${index}">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h3>Tarjeta #${index + 1} <span class="badge badge-primary">ID: ${tarjeta.id}</span></h3>
+                            <button onclick="removeTarjeta(${index})" class="btn btn-danger">🗑️ Eliminar</button>
+                        </div>
+                        <div class="grid-2">
+                            <div>
+                                <label>ID de Tarjeta:</label>
+                                <input type="text" value="${tarjeta.id}" onchange="updateTarjeta(${index}, 'id', this.value)">
+                            </div>
+                            <div>
+                                <label>ID de Horario:</label>
+                                <input type="number" value="${tarjeta.horarioId}" min="1" onchange="updateTarjeta(${index}, 'horarioId', this.value)">
+                            </div>
+                        </div>
+                        <label>Puertas Habilitadas:</label>
+                        <div class="checkbox-group">
+                            ${[1, 2, 3, 4].map(i => `
+                                <label>
+                                    <input type="checkbox" ${tarjeta.puertas[i-1] ? 'checked' : ''} 
+                                           onchange="updateTarjeta(${index}, 'puertas', ${i-1}, this.checked)">
+                                    Puerta ${i}
+                                </label>
+                            `).join('')}
+                        </div>
+                        <div class="grid-2">
+                            <div>
+                                <label>Fecha Inicio:</label>
+                                <input type="date" value="${formatDateForInput(tarjeta.fechaInicio)}" onchange="updateTarjeta(${index}, 'fechaInicio', formatDateForOutput(this.value))">
+                            </div>
+                            <div>
+                                <label>Fecha Fin:</label>
+                                <input type="date" value="${formatDateForInput(tarjeta.fechaFin)}" onchange="updateTarjeta(${index}, 'fechaFin', formatDateForOutput(this.value))">
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += tarjetaHTML;
+            });
+        }
+
+        function renderHorarios() {
+            const container = document.getElementById('horariosList');
+            container.innerHTML = '';
+            
+            state.horarios.forEach((horario, index) => {
+                const horarioHTML = `
+                    <div class="config-item" data-index="${index}">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h3>Horario #${index + 1} <span class="badge badge-primary">ID: ${horario.id}</span></h3>
+                            <button onclick="removeHorario(${index})" class="btn btn-danger">🗑️ Eliminar</button>
+                        </div>
+                        <label>Días Habilitados:</label>
+                        <div class="checkbox-group">
+                            ${['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'].map((dia, i) => `
+                                <label>
+                                    <input type="checkbox" ${horario.dias[i] ? 'checked' : ''} 
+                                           onchange="updateHorario(${index}, 'dias', ${i}, this.checked)">
+                                    ${dia}
+                                </label>
+                            `).join('')}
+                        </div>
+                        <div class="grid-2">
+                            <div>
+                                <label>Hora Inicio:</label>
+                                <input type="time" value="${horario.horaInicio}" onchange="updateHorario(${index}, 'horaInicio', this.value)">
+                            </div>
+                            <div>
+                                <label>Hora Fin:</label>
+                                <input type="time" value="${horario.horaFin}" onchange="updateHorario(${index}, 'horaFin', this.value)">
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += horarioHTML;
+            });
+        }
+
+        function renderExit() {
+            document.getElementById('exit1').value = state.exit[1];
+            document.getElementById('exit2').value = state.exit[2];
+        }
+
+        function renderTiempo() {
+            document.getElementById('tiempo1').value = state.tiempo[1];
+            document.getElementById('tiempo2').value = state.tiempo[2];
+            document.getElementById('tiempo3').value = state.tiempo[3];
+            document.getElementById('tiempo4').value = state.tiempo[4];
+        }
+
+        function renderLog() {
+            const container = document.getElementById('logEntries');
+            container.innerHTML = '';
+            
+            state.log.forEach(entry => {
+                const entryHTML = `
+                    <div class="log-entry ${entry.evento.includes('denegado') ? 'log-denied' : 'log-allowed'}">
+                        <strong>Tag:</strong> ${entry.tag} | 
+                        <strong>Puerta:</strong> ${entry.puerta} | 
+                        <strong>Fecha:</strong> ${entry.fechaHora} | 
+                        <strong>Evento:</strong> ${entry.evento}
+                    </div>
+                `;
+                container.innerHTML += entryHTML;
+            });
+        }
+
+        // ====================== FUNCIONES DE ACTUALIZACIÓN ======================
+        function addNewTarjeta() {
+            state.tarjetas.push({
+                id: '',
+                puertas: [true, true, false, false],
+                fechaInicio: '01/01/2024',
+                fechaFin: '31/12/2024',
+                horarioId: '1'
+            });
+            renderTarjetas();
+        }
+
+        function removeTarjeta(index) {
+            state.tarjetas.splice(index, 1);
+            renderTarjetas();
+        }
+
+        function updateTarjeta(index, field, value, checked) {
+            if (field === 'puertas') {
+                state.tarjetas[index].puertas[value] = checked;
+            } else {
+                state.tarjetas[index][field] = value;
+            }
+        }
+
+        function addNewHorario() {
+            state.horarios.push({
+                id: (state.horarios.length + 1).toString(),
+                dias: [true, true, true, true, true, false, false], // L-V activo
+                horaInicio: '08:00',
+                horaFin: '17:00'
+            });
+            renderHorarios();
+        }
+
+        function removeHorario(index) {
+            state.horarios.splice(index, 1);
+            renderHorarios();
+        }
+
+        function updateHorario(index, field, value, checked) {
+            if (field === 'dias') {
+                state.horarios[index].dias[value] = checked;
+            } else {
+                state.horarios[index][field] = value;
+            }
+        }
+
+        function updateExit() {
+            state.exit[1] = document.getElementById('exit1').value;
+            state.exit[2] = document.getElementById('exit2').value;
+        }
+
+        function updateTiempo() {
+            state.tiempo[1] = document.getElementById('tiempo1').value;
+            state.tiempo[2] = document.getElementById('tiempo2').value;
+            state.tiempo[3] = document.getElementById('tiempo3').value;
+            state.tiempo[4] = document.getElementById('tiempo4').value;
+        }
+
+        // ====================== FUNCIONES UTILITARIAS ======================
+        function formatDateForInput(dateStr) {
+            // Convierte de DD/MM/YYYY a YYYY-MM-DD
+            const [day, month, year] = dateStr.split('/');
+            return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+        }
+
+        function formatDateForOutput(dateStr) {
+            // Convierte de YYYY-MM-DD a DD/MM/YYYY
+            const [year, month, day] = dateStr.split('-');
+            return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`;
+        }
+
+        function filterLog() {
+            const searchTerm = document.getElementById('logSearch').value.toLowerCase();
+            const filterDoor = document.getElementById('logFilterDoor').value;
+            const filterEvent = document.getElementById('logFilterEvent').value;
+            
+            const filtered = state.log.filter(entry => {
+                const matchesSearch = entry.tag.toLowerCase().includes(searchTerm) || 
+                                     entry.evento.toLowerCase().includes(searchTerm);
+                const matchesDoor = filterDoor === '' || entry.puerta === filterDoor;
+                const matchesEvent = filterEvent === '' || 
+                                    (filterEvent === 'permitido' && entry.evento.includes('permitido')) ||
+                                    (filterEvent === 'denegado' && entry.evento.includes('denegado'));
+                
+                return matchesSearch && matchesDoor && matchesEvent;
+            });
+            
+            renderFilteredLog(filtered);
+        }
+
+        function renderFilteredLog(filteredLog) {
+            const container = document.getElementById('logEntries');
+            container.innerHTML = '';
+            
+            filteredLog.forEach(entry => {
+                const entryHTML = `
+                    <div class="log-entry ${entry.evento.includes('denegado') ? 'log-denied' : 'log-allowed'}">
+                        <strong>Tag:</strong> ${entry.tag} | 
+                        <strong>Puerta:</strong> ${entry.puerta} | 
+                        <strong>Fecha:</strong> ${entry.fechaHora} | 
+                        <strong>Evento:</strong> ${entry.evento}
+                    </div>
+                `;
+                container.innerHTML += entryHTML;
+            });
+        }
+
+        // ====================== GUARDADO Y DESCARGA ======================
+        function saveAllFiles() {
+            updateExit();
+            updateTiempo();
+            
+            // Generar contenido de los archivos
+            const tarjetasContent = state.tarjetas.map(t => 
+                `${t.id},${t.puertas.map(p => p ? '1' : '0').join('')},${t.fechaInicio},${t.fechaFin},${t.horarioId}`
+            ).join('\n');
+            
+            const horariosContent = state.horarios.map(h => 
+                `${h.id},${h.dias.map(d => d ? '1' : '0').join('')},${h.horaInicio},${h.horaFin}`
+            ).join('\n');
+            
+            const exitContent = `1,${state.exit[1]}\n2,${state.exit[2]}`;
+            
+            const tiempoContent = `1,${state.tiempo[1]}\n2,${state.tiempo[2]}\n3,${state.tiempo[3]}\n4,${state.tiempo[4]}`;
+            
+            const logContent = state.log.map(l => 
+                `${l.tag},${l.puerta},${l.fechaHora},${l.evento}`
+            ).join('\n');
+            
+            // Guardar en el estado
+            state.files = {
+                'TARJETAS.txt': tarjetasContent,
+                'HORARIOS.txt': horariosContent,
+                'EXIT.txt': exitContent,
+                'TIEMPO.txt': tiempoContent,
+                'LOG.txt': logContent
+            };
+            
+            alert('¡Todos los cambios han sido guardados en memoria!');
+        }
+
+        function downloadAllFiles() {
+            saveAllFiles(); // Asegurarse de que todo está actualizado
+            
+            // Crear un ZIP con todos los archivos (usando JSZip)
+            if (typeof JSZip === 'undefined') {
+                alert('Error: JSZip no está cargado. Descarga los archivos individualmente.');
+                return;
+            }
+            
+            const zip = new JSZip();
+            for (const [filename, content] of Object.entries(state.files)) {
+                zip.file(filename, content);
+            }
+            
+            zip.generateAsync({type: 'blob'}).then(blob => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'FTgroup_Config.zip';
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+        }
+
+        function resetAll() {
+            if (confirm('¿Estás seguro de que quieres reiniciar toda la configuración?')) {
+                state.tarjetas = [];
+                state.horarios = [];
+                state.exit = {1: 3, 2: 4};
+                state.tiempo = {1: 2, 2: 2, 3: 2, 4: 2};
+                state.log = [];
+                renderEmptyTemplates();
+            }
+        }
+
+        function clearLog() {
+            if (confirm('¿Estás seguro de que quieres limpiar el registro de eventos?')) {
+                state.log = [];
+                renderLog();
+            }
+        }
+
+        function exportLog() {
+            const csvContent = "data:text/csv;charset=utf-8," +
+                "Tag,Puerta,Fecha,Evento\n" +
+                state.log.map(e => 
+                    `"${e.tag}","${e.puerta}","${e.fechaHora}","${e.evento}"`
+                ).join("\n");
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "FTgroup_LOG.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Cargar JSZip dinámicamente si no está disponible
+        if (typeof JSZip === 'undefined') {
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+            document.head.appendChild(script);
+        }
+    </script>
+</body>
+</html>
