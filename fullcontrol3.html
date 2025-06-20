@@ -556,20 +556,43 @@
             renderTiempo();
         }
 
-        function parseLog(content) {
-            state.log = content.split('\n')
-                .filter(line => line.trim() !== '')
-                .map(line => {
-                    const [tag, puerta, fechaHora, ...eventoParts] = line.split(',');
+      function parseLog(content) {
+    state.log = content.split('\n')
+        .filter(line => line.trim() !== '')
+        .map(line => {
+            // Intenta detectar el formato de la línea
+            if (line.startsWith('Pulsador')) {
+                // Formato de Pulsador
+                const pulsadorMatch = line.match(/Pulsador (\d+), Puerta (\d+) Fecha: (\d{2}\/\d{2}\/\d{4}) Hora: (\d{2}:\d{2}:\d{2})/);
+                if (pulsadorMatch) {
                     return {
-                        tag: tag.trim(),
-                        puerta: puerta.trim(),
-                        fechaHora: fechaHora.trim(),
-                        evento: eventoParts.join(',').trim()
+                        tipo: 'pulsador',
+                        pulsador: pulsadorMatch[1],
+                        puerta: pulsadorMatch[2],
+                        fecha: pulsadorMatch[3],
+                        hora: pulsadorMatch[4],
+                        evento: `Pulsador ${pulsadorMatch[1]} activado`
                     };
-                });
-            renderLog();
-        }
+                }
+            } else {
+                // Formato de Acceso (TAG)
+                const parts = line.split(',');
+                if (parts.length >= 4) {
+                    return {
+                        tipo: 'acceso',
+                        tag: parts[0].trim(),
+                        puerta: parts[1].trim(),
+                        fechaHora: parts[2].trim(),
+                        evento: parts.slice(3).join(',').trim()
+                    };
+                }
+            }
+            return null; // Para líneas que no coinciden con ningún formato
+        })
+        .filter(entry => entry !== null); // Filtramos líneas no válidas
+    
+    renderLog();
+}
 
         // ====================== RENDERIZADO ======================
         function renderTarjetas() {
@@ -670,22 +693,38 @@
             document.getElementById('tiempo4').value = state.tiempo[4] || '2';
         }
 
-        function renderLog() {
-            const container = document.getElementById('logEntries');
-            container.innerHTML = '';
-            
-            state.log.forEach(entry => {
-                const entryHTML = `
-                    <div class="log-entry ${entry.evento.includes('denegado') ? 'log-denied' : 'log-allowed'}">
-                        <strong>Tag:</strong> ${entry.tag} | 
-                        <strong>Puerta:</strong> ${entry.puerta} | 
-                        <strong>Fecha:</strong> ${entry.fechaHora} | 
-                        <strong>Evento:</strong> ${entry.evento}
-                    </div>
-                `;
-                container.innerHTML += entryHTML;
-            });
+    function renderLog() {
+    const container = document.getElementById('logEntries');
+    container.innerHTML = '';
+    
+    state.log.forEach(entry => {
+        let entryHTML = '';
+        
+        if (entry.tipo === 'pulsador') {
+            entryHTML = `
+                <div class="log-entry log-allowed">
+                    <strong>Pulsador:</strong> ${entry.pulsador} | 
+                    <strong>Puerta:</strong> ${entry.puerta} | 
+                    <strong>Fecha:</strong> ${entry.fecha} | 
+                    <strong>Hora:</strong> ${entry.hora} | 
+                    <strong>Evento:</strong> ${entry.evento}
+                </div>
+            `;
+        } else {
+            const logClass = entry.evento.includes('denegado') ? 'log-denied' : 'log-allowed';
+            entryHTML = `
+                <div class="log-entry ${logClass}">
+                    <strong>Tag:</strong> ${entry.tag} | 
+                    <strong>Puerta:</strong> ${entry.puerta} | 
+                    <strong>Fecha/Hora:</strong> ${entry.fechaHora} | 
+                    <strong>Evento:</strong> ${entry.evento}
+                </div>
+            `;
         }
+        
+        container.innerHTML += entryHTML;
+    });
+}
 
         // ====================== FUNCIONES DE ACTUALIZACIÓN ======================
         function addNewTarjeta() {
@@ -766,24 +805,36 @@
             return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`;
         }
 
-        function filterLog() {
-            const searchTerm = document.getElementById('logSearch').value.toLowerCase();
-            const filterDoor = document.getElementById('logFilterDoor').value;
-            const filterEvent = document.getElementById('logFilterEvent').value;
-            
-            const filtered = state.log.filter(entry => {
-                const matchesSearch = entry.tag.toLowerCase().includes(searchTerm) || 
-                                     entry.evento.toLowerCase().includes(searchTerm);
-                const matchesDoor = filterDoor === '' || entry.puerta === filterDoor;
-                const matchesEvent = filterEvent === '' || 
-                                    (filterEvent === 'permitido' && entry.evento.includes('permitido')) ||
-                                    (filterEvent === 'denegado' && entry.evento.includes('denegado'));
-                
-                return matchesSearch && matchesDoor && matchesEvent;
-            });
-            
-            renderFilteredLog(filtered);
-        }
+       function filterLog() {
+    const searchTerm = document.getElementById('logSearch').value.toLowerCase();
+    const filterDoor = document.getElementById('logFilterDoor').value;
+    const filterEvent = document.getElementById('logFilterEvent').value;
+    
+    const filtered = state.log.filter(entry => {
+        // Búsqueda general
+        const matchesSearch = 
+            (entry.tipo === 'pulsador' && 
+             (`pulsador ${entry.pulsador}`.includes(searchTerm) || 
+              `puerta ${entry.puerta}`.includes(searchTerm)) ||
+            (entry.tipo === 'acceso' && 
+             (entry.tag.toLowerCase().includes(searchTerm) || 
+              entry.evento.toLowerCase().includes(searchTerm)));
+        
+        // Filtro por puerta
+        const matchesDoor = filterDoor === '' || 
+                           (entry.puerta === filterDoor);
+        
+        // Filtro por evento (solo para registros de acceso)
+        const matchesEvent = filterEvent === '' || 
+                           (entry.tipo === 'acceso' && 
+                            ((filterEvent === 'permitido' && entry.evento.includes('permitido')) ||
+                             (filterEvent === 'denegado' && entry.evento.includes('denegado'))));
+        
+        return matchesSearch && matchesDoor && matchesEvent;
+    });
+    
+    renderFilteredLog(filtered);
+}
 
         function renderFilteredLog(filteredLog) {
             const container = document.getElementById('logEntries');
@@ -806,6 +857,15 @@
         function saveAllFiles() {
             updateExit();
             updateTiempo();
+
+const logContent = state.log.map(entry => {
+    if (entry.tipo === 'pulsador') {
+        return `Pulsador ${entry.pulsador}, Puerta ${entry.puerta} Fecha: ${entry.fecha} Hora: ${entry.hora}`;
+    } else {
+        return `${entry.tag},${entry.puerta},${entry.fechaHora},${entry.evento}`;
+    }
+}).join('\n');
+
             
             // Generar contenido de los archivos
             const tarjetasContent = state.tarjetas.map(t => 
