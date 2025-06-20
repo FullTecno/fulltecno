@@ -246,6 +246,8 @@
         <div id="tarjetas" class="tab-content active">
             <div id="tarjetasContainer">
                 <h2>Configuración de Tarjetas</h2>
+                <p>Total de llaveros leídos: <span id="tarjetasCount">0</span></p>
+
                 <div class="action-buttons">
                     <button id="addTarjeta" class="btn btn-primary">➕ Añadir Tarjeta</button>
                 </div>
@@ -659,6 +661,9 @@ function parseLog(content) {
                 `;
                 container.innerHTML += tarjetaHTML;
             });
+
+            document.getElementById('tarjetasCount').innerText = state.tarjetas.length;
+
         }
 
         function renderHorarios() {
