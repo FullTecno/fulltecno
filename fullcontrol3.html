@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>FTgroup - Full Control 4.4 by Lucas David Toffalo</title>
+    <title>FTgroup - Full Control 4.4 by Lucas David Toffolo</title>
     <style>
         :root {
             --primary: #3498db;
@@ -208,12 +208,17 @@
             background: var(--primary);
             color: white;
         }
-    </style>
+    
+.log-pulsador {
+    border-left: 4px solid #2980b9;
+}
+
+</style>
 </head>
 <body>
     <div class="container">
         <h1>FTgroup - Full Control 4.4</h1>
-        <p class="subtitle">by Lucas David Toffalo</p>
+        <p class="subtitle">by Lucas David Toffolo</p>
 
         <!-- Selector de Modo -->
         <div class="mode-selector">
@@ -366,7 +371,7 @@
         </div>
 
         <div class="footer">
-            FTgroup - Full Control 4.4 | by Lucas David Toffalo | 2024
+            FTgroup - Full Control 4.4 | by Lucas David Toffolo | 2024
         </div>
     </div>
 
@@ -556,43 +561,57 @@
             renderTiempo();
         }
 
-      function parseLog(content) {
+        
+function parseLog(content) {
     state.log = content.split('\n')
         .filter(line => line.trim() !== '')
         .map(line => {
-            // Intenta detectar el formato de la línea
-            if (line.startsWith('Pulsador')) {
-                // Formato de Pulsador
-                const pulsadorMatch = line.match(/Pulsador (\d+), Puerta (\d+) Fecha: (\d{2}\/\d{2}\/\d{4}) Hora: (\d{2}:\d{2}:\d{2})/);
-                if (pulsadorMatch) {
-                    return {
-                        tipo: 'pulsador',
-                        pulsador: pulsadorMatch[1],
-                        puerta: pulsadorMatch[2],
-                        fecha: pulsadorMatch[3],
-                        hora: pulsadorMatch[4],
-                        evento: `Pulsador ${pulsadorMatch[1]} activado`
-                    };
-                }
-            } else {
-                // Formato de Acceso (TAG)
-                const parts = line.split(',');
-                if (parts.length >= 4) {
-                    return {
-                        tipo: 'acceso',
-                        tag: parts[0].trim(),
-                        puerta: parts[1].trim(),
-                        fechaHora: parts[2].trim(),
-                        evento: parts.slice(3).join(',').trim()
-                    };
-                }
+            // Línea con estructura CSV típica
+            if (line.includes(',') && line.split(',').length >= 4) {
+                const [tag, puerta, fechaHora, ...eventoParts] = line.split(',');
+                return {
+                    tag: tag.trim(),
+                    puerta: puerta.trim(),
+                    fechaHora: fechaHora.trim(),
+                    evento: eventoParts.join(',').trim(),
+                    tipo: 'tarjeta'
+                };
             }
-            return null; // Para líneas que no coinciden con ningún formato
-        })
-        .filter(entry => entry !== null); // Filtramos líneas no válidas
-    
+
+            // Línea del tipo "Pulsador 1, Puerta 1 Fecha: 05/01/2025 Hora: 00:27:47"
+            if (line.includes('Pulsador') && line.includes('Puerta') && line.includes('Fecha') && line.includes('Hora')) {
+                const pulsadorMatch = line.match(/Pulsador (\d+)/);
+                const puertaMatch = line.match(/Puerta (\d+)/);
+                const fechaMatch = line.match(/Fecha:\s*([\d/]+)/);
+                const horaMatch = line.match(/Hora:\s*([\d:]+)/);
+
+                const pulsador = pulsadorMatch ? pulsadorMatch[1] : '?';
+                const puerta = puertaMatch ? puertaMatch[1] : '?';
+                const fecha = fechaMatch ? fechaMatch[1] : '?';
+                const hora = horaMatch ? horaMatch[1] : '?';
+
+                return {
+                    tag: `PULSADOR ${pulsador}`,
+                    puerta: puerta,
+                    fechaHora: `${fecha} ${hora}`,
+                    evento: `Pulsador ${pulsador}`,
+                    tipo: 'pulsador'
+                };
+            }
+
+            // Fallback
+            return {
+                tag: '???',
+                puerta: '?',
+                fechaHora: '???',
+                evento: line.trim(),
+                tipo: 'otro'
+            };
+        });
+
     renderLog();
 }
+
 
         // ====================== RENDERIZADO ======================
         function renderTarjetas() {
@@ -693,38 +712,22 @@
             document.getElementById('tiempo4').value = state.tiempo[4] || '2';
         }
 
-    function renderLog() {
-    const container = document.getElementById('logEntries');
-    container.innerHTML = '';
-    
-    state.log.forEach(entry => {
-        let entryHTML = '';
-        
-        if (entry.tipo === 'pulsador') {
-            entryHTML = `
-                <div class="log-entry log-allowed">
-                    <strong>Pulsador:</strong> ${entry.pulsador} | 
-                    <strong>Puerta:</strong> ${entry.puerta} | 
-                    <strong>Fecha:</strong> ${entry.fecha} | 
-                    <strong>Hora:</strong> ${entry.hora} | 
-                    <strong>Evento:</strong> ${entry.evento}
-                </div>
-            `;
-        } else {
-            const logClass = entry.evento.includes('denegado') ? 'log-denied' : 'log-allowed';
-            entryHTML = `
-                <div class="log-entry ${logClass}">
-                    <strong>Tag:</strong> ${entry.tag} | 
-                    <strong>Puerta:</strong> ${entry.puerta} | 
-                    <strong>Fecha/Hora:</strong> ${entry.fechaHora} | 
-                    <strong>Evento:</strong> ${entry.evento}
-                </div>
-            `;
+        function renderLog() {
+            const container = document.getElementById('logEntries');
+            container.innerHTML = '';
+            
+            state.log.forEach(entry => {
+                const entryHTML = `
+                    <div class="log-entry ${entry.evento.includes('denegado') ? 'log-denied' : 'log-allowed'}">
+                        <strong>Tag:</strong> ${entry.tag} | 
+                        <strong>Puerta:</strong> ${entry.puerta} | 
+                        <strong>Fecha:</strong> ${entry.fechaHora} | 
+                        <strong>Evento:</strong> ${entry.evento}
+                    </div>
+                `;
+                container.innerHTML += entryHTML;
+            });
         }
-        
-        container.innerHTML += entryHTML;
-    });
-}
 
         // ====================== FUNCIONES DE ACTUALIZACIÓN ======================
         function addNewTarjeta() {
@@ -805,36 +808,24 @@
             return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`;
         }
 
-       function filterLog() {
-    const searchTerm = document.getElementById('logSearch').value.toLowerCase();
-    const filterDoor = document.getElementById('logFilterDoor').value;
-    const filterEvent = document.getElementById('logFilterEvent').value;
-    
-    const filtered = state.log.filter(entry => {
-        // Búsqueda general
-        const matchesSearch = 
-            (entry.tipo === 'pulsador' && 
-             (`pulsador ${entry.pulsador}`.includes(searchTerm) || 
-              `puerta ${entry.puerta}`.includes(searchTerm)) ||
-            (entry.tipo === 'acceso' && 
-             (entry.tag.toLowerCase().includes(searchTerm) || 
-              entry.evento.toLowerCase().includes(searchTerm)));
-        
-        // Filtro por puerta
-        const matchesDoor = filterDoor === '' || 
-                           (entry.puerta === filterDoor);
-        
-        // Filtro por evento (solo para registros de acceso)
-        const matchesEvent = filterEvent === '' || 
-                           (entry.tipo === 'acceso' && 
-                            ((filterEvent === 'permitido' && entry.evento.includes('permitido')) ||
-                             (filterEvent === 'denegado' && entry.evento.includes('denegado'))));
-        
-        return matchesSearch && matchesDoor && matchesEvent;
-    });
-    
-    renderFilteredLog(filtered);
-}
+        function filterLog() {
+            const searchTerm = document.getElementById('logSearch').value.toLowerCase();
+            const filterDoor = document.getElementById('logFilterDoor').value;
+            const filterEvent = document.getElementById('logFilterEvent').value;
+            
+            const filtered = state.log.filter(entry => {
+                const matchesSearch = entry.tag.toLowerCase().includes(searchTerm) || 
+                                     entry.evento.toLowerCase().includes(searchTerm);
+                const matchesDoor = filterDoor === '' || entry.puerta === filterDoor;
+                const matchesEvent = filterEvent === '' || 
+                                    (filterEvent === 'permitido' && entry.evento.includes('permitido')) ||
+                                    (filterEvent === 'denegado' && entry.evento.includes('denegado'));
+                
+                return matchesSearch && matchesDoor && matchesEvent;
+            });
+            
+            renderFilteredLog(filtered);
+        }
 
         function renderFilteredLog(filteredLog) {
             const container = document.getElementById('logEntries');
@@ -857,15 +848,6 @@
         function saveAllFiles() {
             updateExit();
             updateTiempo();
-
-const logContent = state.log.map(entry => {
-    if (entry.tipo === 'pulsador') {
-        return `Pulsador ${entry.pulsador}, Puerta ${entry.puerta} Fecha: ${entry.fecha} Hora: ${entry.hora}`;
-    } else {
-        return `${entry.tag},${entry.puerta},${entry.fechaHora},${entry.evento}`;
-    }
-}).join('\n');
-
             
             // Generar contenido de los archivos
             const tarjetasContent = state.tarjetas.map(t => 
