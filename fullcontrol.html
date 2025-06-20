@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>FTgroup - Full Control 2.0 by Lucas David Toffolo</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; text-align: center; }
+        h2 { color: #3498db; border-bottom: 2px solid #3498db; padding-bottom: 5px; }
+        label { display: block; margin-top: 15px; font-weight: bold; }
+        input, select, textarea, button { width: 100%; padding: 10px; margin-top: 5px; border-radius: 4px; border: 1px solid #ddd; }
+        button { background: #3498db; color: white; cursor: pointer; font-weight: bold; margin-top: 15px; }
+        button:hover { background: #2980b9; }
+        textarea { resize: vertical; min-height: 100px; }
+        .group { display: flex; gap: 10px; margin-top: 5px; }
+        .group-item { flex: 1; }
+        .checkbox-group { display: flex; gap: 15px; margin-top: 10px; flex-wrap: wrap; }
+        .checkbox-group label { display: flex; align-items: center; gap: 5px; font-weight: normal; }
+        .result-box { background: #f9f9f9; padding: 10px; border-radius: 4px; margin-top: 20px; }
+        .tab { overflow: hidden; border: 1px solid #ccc; background: #f1f1f1; border-radius: 4px 4px 0 0; }
+        .tab button { background: inherit; float: left; border: none; outline: none; cursor: pointer; padding: 10px 16px; transition: 0.3s; margin: 0; width: auto; }
+        .tab button:hover { background: #ddd; }
+        .tab button.active { background: #3498db; color: white; }
+        .tabcontent { display: none; padding: 15px; border: 1px solid #ccc; border-top: none; border-radius: 0 0 4px 4px; }
+        .footer { text-align: center; margin-top: 20px; color: #7f8c8d; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>FTgroup - Full Control 2.0</h1>
+        <p style="text-align: center; color: #e74c3c;">by Lucas David Toffolo</p>
+        
+        <!-- Pestañas -->
+        <div class="tab">
+            <button class="tablinks active" onclick="openTab(event, 'tarjetas')">TARJETAS.txt</button>
+            <button class="tablinks" onclick="openTab(event, 'horarios')">HORARIOS.txt</button>
+            <button class="tablinks" onclick="openTab(event, 'exit')">EXIT.txt</button>
+            <button class="tablinks" onclick="openTab(event, 'tiempo')">TIEMPO.txt</button>
+        </div>
+        
+        <!-- Formulario TARJETAS.txt -->
+        <div id="tarjetas" class="tabcontent" style="display: block;">
+            <h2>Configuración de Tarjetas</h2>
+            <label for="inputFormat">Formato de Entrada:</label>
+            <select id="inputFormat">
+                <option value="newline">Uno por línea (Enter)</option>
+                <option value="comma">Separados por coma ( , )</option>
+                <option value="semicolon">Separados por punto y coma ( ; )</option>
+                <option value="tab">Separados por tabulación</option>
+            </select>
+            
+            <label for="tarjetasInput">Números de Tarjetas/Llaveros:</label>
+            <textarea id="tarjetasInput" placeholder="Ejemplo: 9783395"></textarea>
+            
+            <label>Puertas Habilitadas:</label>
+            <div class="checkbox-group">
+                <label><input type="checkbox" id="puerta1" checked> Puerta 1</label>
+                <label><input type="checkbox" id="puerta2" checked> Puerta 2</label>
+                <label><input type="checkbox" id="puerta3"> Puerta 3</label>
+                <label><input type="checkbox" id="puerta4"> Puerta 4</label>
+            </div>
+            
+            <div class="group">
+                <div class="group-item">
+                    <label for="fechaInicio">Fecha de Inicio:</label>
+                    <input type="date" id="fechaInicio" required>
+                </div>
+                <div class="group-item">
+                    <label for="fechaFin">Fecha de Fin:</label>
+                    <input type="date" id="fechaFin" required>
+                </div>
+            </div>
+            
+            <label for="idHorario">ID de Horario Asociado:</label>
+            <input type="number" id="idHorario" min="1" value="1" required>
+            
+            <button onclick="generarTarjetas()">Generar TARJETAS.txt</button>
+            
+            <div class="result-box">
+                <label for="resultadoTarjetas">Contenido de TARJETAS.txt:</label>
+                <textarea id="resultadoTarjetas" readonly></textarea>
+                <button onclick="copiarTexto('resultadoTarjetas')">Copiar Texto</button>
+            </div>
+        </div>
+        
+        <!-- Formulario HORARIOS.txt -->
+        <div id="horarios" class="tabcontent">
+            <h2>Configuración de Horarios</h2>
+            <label for="horarioId">ID de Horario:</label>
+            <input type="number" id="horarioId" min="1" value="1" required>
+            
+            <label>Días Habilitados (Lunes a Domingo):</label>
+            <div class="checkbox-group">
+                <label><input type="checkbox" class="dia" checked> Lunes</label>
+                <label><input type="checkbox" class="dia" checked> Martes</label>
+                <label><input type="checkbox" class="dia" checked> Miércoles</label>
+                <label><input type="checkbox" class="dia" checked> Jueves</label>
+                <label><input type="checkbox" class="dia" checked> Viernes</label>
+                <label><input type="checkbox" class="dia"> Sábado</label>
+                <label><input type="checkbox" class="dia"> Domingo</label>
+            </div>
+            
+            <div class="group">
+                <div class="group-item">
+                    <label for="horaInicio">Hora de Inicio:</label>
+                    <input type="time" id="horaInicio" value="08:00" required>
+                </div>
+                <div class="group-item">
+                    <label for="horaFin">Hora de Fin:</label>
+                    <input type="time" id="horaFin" value="17:00" required>
+                </div>
+            </div>
+            
+            <button onclick="generarHorario()">Generar HORARIOS.txt</button>
+            
+            <div class="result-box">
+                <label for="resultadoHorario">Contenido de HORARIOS.txt:</label>
+                <textarea id="resultadoHorario" readonly></textarea>
+                <button onclick="copiarTexto('resultadoHorario')">Copiar Texto</button>
+            </div>
+        </div>
+        
+        <!-- Formulario EXIT.txt -->
+        <div id="exit" class="tabcontent">
+            <h2>Configuración de Pulsadores de Salida</h2>
+            <p><strong>Formato:</strong> pulsador,puerta_asociada (ej: <code>1,3</code> para vincular el pulsador 1 a la puerta 3).</p>
+            
+            <div class="group">
+                <div class="group-item">
+                    <label for="exitPulsador1">Pulsador 1 → Puerta:</label>
+                    <input type="number" id="exitPulsador1" min="1" max="4" value="1" required>
+                </div>
+                <div class="group-item">
+                    <label for="exitPulsador2">Pulsador 2 → Puerta:</label>
+                    <input type="number" id="exitPulsador2" min="1" max="4" value="3" required>
+                </div>
+            </div>
+            
+            <button onclick="generarExit()">Generar EXIT.txt</button>
+            
+            <div class="result-box">
+                <label for="resultadoExit">Contenido de EXIT.txt:</label>
+                <textarea id="resultadoExit" readonly></textarea>
+                <button onclick="copiarTexto('resultadoExit')">Copiar Texto</button>
+            </div>
+        </div>
+        
+        <!-- Formulario TIEMPO.txt -->
+        <div id="tiempo" class="tabcontent">
+            <h2>Tiempo de Apertura de Puertas (segundos)</h2>
+            <p><strong>Formato:</strong> puerta,tiempo (ej: <code>1,2</code> para 2 segundos de apertura en la puerta 1).</p>
+            
+            <div class="group">
+                <div class="group-item">
+                    <label for="tiempoPuerta1">Puerta 1 → Segundos:</label>
+                    <input type="number" id="tiempoPuerta1" min="1" value="2" required>
+                </div>
+                <div class="group-item">
+                    <label for="tiempoPuerta2">Puerta 2 → Segundos:</label>
+                    <input type="number" id="tiempoPuerta2" min="1" value="2" required>
+                </div>
+            </div>
+            
+            <div class="group">
+                <div class="group-item">
+                    <label for="tiempoPuerta3">Puerta 3 → Segundos:</label>
+                    <input type="number" id="tiempoPuerta3" min="1" value="2" required>
+                </div>
+                <div class="group-item">
+                    <label for="tiempoPuerta4">Puerta 4 → Segundos:</label>
+                    <input type="number" id="tiempoPuerta4" min="1" value="2" required>
+                </div>
+            </div>
+            
+            <button onclick="generarTiempo()">Generar TIEMPO.txt</button>
+            
+            <div class="result-box">
+                <label for="resultadoTiempo">Contenido de TIEMPO.txt:</label>
+                <textarea id="resultadoTiempo" readonly></textarea>
+                <button onclick="copiarTexto('resultadoTiempo')">Copiar Texto</button>
+            </div>
+        </div>
+        
+        <div class="footer">
+            FTgroup - Full Control 2.0 by Lucas David Toffolo | 2024
+        </div>
+    </div>
+
+    <script>
+        // Cambiar pestañas
+        function openTab(evt, tabName) {
+            const tabcontent = document.getElementsByClassName("tabcontent");
+            for (let i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            const tablinks = document.getElementsByClassName("tablinks");
+            for (let i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+
+        // Generar TARJETAS.txt
+        function generarTarjetas() {
+            const inputFormat = document.getElementById("inputFormat").value;
+            let tarjetasInput = document.getElementById("tarjetasInput").value.trim();
+            let tarjetas = [];
+
+            // Procesar según el formato seleccionado
+            if (inputFormat === "newline") {
+                tarjetas = tarjetasInput.split("\n").filter(t => t.trim() !== "");
+            } else if (inputFormat === "comma") {
+                tarjetas = tarjetasInput.split(",").filter(t => t.trim() !== "");
+            } else if (inputFormat === "semicolon") {
+                tarjetas = tarjetasInput.split(";").filter(t => t.trim() !== "");
+            } else if (inputFormat === "tab") {
+                tarjetas = tarjetasInput.split("\t").filter(t => t.trim() !== "");
+            }
+
+            // Obtener configuración de puertas
+            const puertas = [
+                document.getElementById("puerta1").checked ? "1" : "0",
+                document.getElementById("puerta2").checked ? "1" : "0",
+                document.getElementById("puerta3").checked ? "1" : "0",
+                document.getElementById("puerta4").checked ? "1" : "0",
+            ].join("");
+
+            const fechaInicio = document.getElementById("fechaInicio").value.split("-").reverse().join("/");
+            const fechaFin = document.getElementById("fechaFin").value.split("-").reverse().join("/");
+            const idHorario = document.getElementById("idHorario").value;
+
+            // Generar contenido
+            let contenido = "";
+            tarjetas.forEach(tarjeta => {
+                contenido += `${tarjeta.trim()},${puertas},${fechaInicio},${fechaFin},${idHorario}\n`;
+            });
+
+            document.getElementById("resultadoTarjetas").value = contenido;
+        }
+
+        // Generar HORARIOS.txt
+        function generarHorario() {
+            const idHorario = document.getElementById("horarioId").value;
+            const dias = Array.from(document.querySelectorAll(".dia")).map(d => d.checked ? "1" : "0").join("");
+            const horaInicio = document.getElementById("horaInicio").value;
+            const horaFin = document.getElementById("horaFin").value;
+
+            const contenido = `${idHorario},${dias},${horaInicio},${horaFin}`;
+            document.getElementById("resultadoHorario").value = contenido;
+        }
+
+        // Generar EXIT.txt
+        function generarExit() {
+            const pulsador1 = document.getElementById("exitPulsador1").value;
+            const puerta1 = document.getElementById("exitPulsador2").value;
+            const contenido = `1,${pulsador1}\n2,${puerta1}`;
+            document.getElementById("resultadoExit").value = contenido;
+        }
+
+        // Generar TIEMPO.txt
+        function generarTiempo() {
+            const tiempo1 = document.getElementById("tiempoPuerta1").value;
+            const tiempo2 = document.getElementById("tiempoPuerta2").value;
+            const tiempo3 = document.getElementById("tiempoPuerta3").value;
+            const tiempo4 = document.getElementById("tiempoPuerta4").value;
+            const contenido = `1,${tiempo1}\n2,${tiempo2}\n3,${tiempo3}\n4,${tiempo4}`;
+            document.getElementById("resultadoTiempo").value = contenido;
+        }
+
+        // Copiar texto al portapapeles
+        function copiarTexto(id) {
+            const texto = document.getElementById(id);
+            texto.select();
+            document.execCommand("copy");
+            alert("¡Texto copiado al portapapeles!");
+        }
+    </script>
+</body>
+</html>
