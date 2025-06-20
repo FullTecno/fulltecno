@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>FTgroup - Full Control 3.0 by Lucas David Toffolo</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --danger: #e74c3c;
+            --success: #2ecc71;
+            --dark: #2c3e50;
+        }
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 20px; background: #f9f9f9; }
+        .container { max-width: 1000px; margin: auto; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
+        h1 { color: var(--dark); text-align: center; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: var(--primary); margin-bottom: 20px; }
+        .mode-selector { display: flex; gap: 10px; margin-bottom: 20px; }
+        .mode-btn { flex: 1; padding: 12px; font-weight: bold; }
+        .file-upload { background: #f1f1f1; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+        .tab { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 15px; }
+        .tab-btn { padding: 10px 15px; background: #e0e0e0; border: none; border-radius: 5px; cursor: pointer; }
+        .tab-btn.active { background: var(--primary); color: white; }
+        .tab-content { display: none; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .tab-content.active { display: block; }
+        .checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0; }
+        .checkbox-group label { display: flex; align-items: center; gap: 5px; }
+        .log-entry { padding: 8px; margin: 5px 0; border-radius: 4px; background: #f8f9fa; }
+        .log-denied { border-left: 4px solid var(--danger); }
+        .log-allowed { border-left: 4px solid var(--success); }
+        .log-filters { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        .log-filters input, .log-filters select { padding: 8px; border-radius: 4px; border: 1px solid #ddd; }
+        .action-buttons { display: flex; gap: 10px; margin-top: 20px; }
+        .action-btn { padding: 10px 15px; font-weight: bold; }
+        #fileStatus { margin-top: 10px; font-size: 14px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>FTgroup - Full Control 3.0</h1>
+        <p class="subtitle">by Lucas David Toffolo</p>
+
+        <!-- Selector de Modo -->
+        <div class="mode-selector">
+            <button id="modeEdit" class="mode-btn" style="background: var(--primary); color: white;">Editar SD Existente</button>
+            <button id="modeNew" class="mode-btn">Nueva Configuración</button>
+        </div>
+
+        <!-- Carga de Archivos (Modo Edición) -->
+        <div id="fileUploadSection" class="file-upload">
+            <h3>📤 Subir Archivos desde la SD</h3>
+            <input type="file" id="fileInput" accept=".txt,.log" multiple>
+            <div id="fileStatus">No se han cargado archivos.</div>
+        </div>
+
+        <!-- Pestañas -->
+        <div class="tab">
+            <button data-tab="tarjetas" class="tab-btn active">TARJETAS.txt</button>
+            <button data-tab="horarios" class="tab-btn">HORARIOS.txt</button>
+            <button data-tab="exit" class="tab-btn">EXIT.txt</button>
+            <button data-tab="tiempo" class="tab-btn">TIEMPO.txt</button>
+            <button data-tab="log" class="tab-btn">LOG.txt</button>
+        </div>
+
+        <!-- Contenido de Pestañas -->
+        <div id="tarjetas" class="tab-content active">
+            <!-- Formulario de TARJETAS.txt -->
+            <h2>Configuración de Tarjetas</h2>
+            <div id="tarjetasForm">
+                <!-- Campos generados dinámicamente -->
+            </div>
+        </div>
+
+        <div id="log" class="tab-content">
+            <h2>📝 Registros de Acceso</h2>
+            <div class="log-filters">
+                <input type="text" id="logSearch" placeholder="Buscar...">
+                <select id="logFilterDoor">
+                    <option value="">Todas las puertas</option>
+                    <option value="1">Puerta 1</option>
+                    <option value="2">Puerta 2</option>
+                    <option value="3">Puerta 3</option>
+                    <option value="4">Puerta 4</option>
+                </select>
+                <select id="logFilterEvent">
+                    <option value="">Todos los eventos</option>
+                    <option value="permitido">Acceso permitido</option>
+                    <option value="denegado">Acceso denegado</option>
+                </select>
+                <button id="exportLogBtn" class="action-btn">Exportar a CSV</button>
+            </div>
+            <div id="logEntries"></div>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="action-buttons">
+            <button id="saveAllBtn" class="action-btn" style="background: var(--success); color: white;">💾 Guardar Todo</button>
+            <button id="downloadAllBtn" class="action-btn" style="background: var(--primary); color: white;">📥 Descargar Todo</button>
+        </div>
+    </div>
+
+    <script>
+        // ====================== CONFIGURACIÓN INICIAL ======================
+        const state = {
+            mode: 'new',
+            files: {},
+            currentTab: 'tarjetas'
+        };
+
+        // ====================== FUNCIONES PRINCIPALES ======================
+        function initApp() {
+            setupEventListeners();
+            renderTarjetasForm();
+        }
+
+        function setupEventListeners() {
+            // Selector de modo
+            document.getElementById('modeEdit').addEventListener('click', () => setMode('edit'));
+            document.getElementById('modeNew').addEventListener('click', () => setMode('new'));
+
+            // Selector de pestañas
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+            });
+
+            // Carga de archivos
+            document.getElementById('fileInput').addEventListener('change', handleFileUpload);
+
+            // Botones de acción
+            document.getElementById('saveAllBtn').addEventListener('click', saveAllFiles);
+            document.getElementById('downloadAllBtn').addEventListener('click', downloadAllFiles);
+            document.getElementById('exportLogBtn').addEventListener('click', exportLogToCSV);
+        }
+
+        // ====================== FUNCIONALIDADES CLAVE ======================
+        function setMode(newMode) {
+            state.mode = newMode;
+            const uploadSection = document.getElementById('fileUploadSection');
+            
+            if (newMode === 'edit') {
+                uploadSection.style.display = 'block';
+                alert("Modo Edición: Sube los archivos de tu SD para editarlos.");
+            } else {
+                uploadSection.style.display = 'none';
+                alert("Modo Nueva Configuración: Genera archivos desde cero.");
+            }
+        }
+
+        function switchTab(tabId) {
+            // Oculta todos los contenidos
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Desactiva todos los botones
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Activa la pestaña seleccionada
+            document.getElementById(tabId).classList.add('active');
+            document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add('active');
+            state.currentTab = tabId;
+        }
+
+        function handleFileUpload(event) {
+            const files = event.target.files;
+            if (files.length === 0) return;
+
+            state.files = {};
+            const fileStatus = document.getElementById('fileStatus');
+            fileStatus.innerHTML = 'Procesando archivos...';
+
+            Array.from(files).forEach(file => {
+                if (file.name.match(/\.(txt|log)$/i)) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        state.files[file.name] = e.target.result;
+                        parseFile(file.name, e.target.result);
+                        
+                        // Actualizar estado
+                        fileStatus.innerHTML = `Archivos cargados: ${Object.keys(state.files).join(', ')}`;
+                    };
+                    reader.readAsText(file);
+                }
+            });
+        }
+
+        function parseFile(filename, content) {
+            if (filename === 'TARJETAS.txt') {
+                parseTarjetas(content);
+            } else if (filename === 'LOG.txt') {
+                displayLogEntries(content);
+            }
+            // ... (añadir parsers para otros archivos)
+        }
+
+        function parseTarjetas(content) {
+            const lines = content.split('\n').filter(line => line.trim() !== '');
+            const formContainer = document.getElementById('tarjetasForm');
+            formContainer.innerHTML = '';
+
+            lines.forEach((line, index) => {
+                const [id, puertas, fechaInicio, fechaFin, horarioId] = line.split(',');
+                
+                const cardDiv = document.createElement('div');
+                cardDiv.className = 'tarjeta-item';
+                cardDiv.style.marginBottom = '20px';
+                cardDiv.style.padding = '15px';
+                cardDiv.style.border = '1px solid #ddd';
+                cardDiv.style.borderRadius = '5px';
+                
+                cardDiv.innerHTML = `
+                    <h3>Tarjeta #${index + 1}</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div>
+                            <label>ID de Tarjeta:</label>
+                            <input type="text" value="${id}" class="tarjeta-id" style="width: 100%;">
+                        </div>
+                        <div>
+                            <label>ID de Horario:</label>
+                            <input type="number" value="${horarioId}" min="1" style="width: 100%;">
+                        </div>
+                    </div>
+                    <label>Puertas Habilitadas:</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" ${puertas[0] === '1' ? 'checked' : ''}> Puerta 1</label>
+                        <label><input type="checkbox" ${puertas[1] === '1' ? 'checked' : ''}> Puerta 2</label>
+                        <label><input type="checkbox" ${puertas[2] === '1' ? 'checked' : ''}> Puerta 3</label>
+                        <label><input type="checkbox" ${puertas[3] === '1' ? 'checked' : ''}> Puerta 4</label>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px;">
+                        <div>
+                            <label>Fecha Inicio:</label>
+                            <input type="date" value="${formatDateForInput(fechaInicio)}" style="width: 100%;">
+                        </div>
+                        <div>
+                            <label>Fecha Fin:</label>
+                            <input type="date" value="${formatDateForInput(fechaFin)}" style="width: 100%;">
+                        </div>
+                    </div>
+                `;
+                
+                formContainer.appendChild(cardDiv);
+            });
+        }
+
+        function displayLogEntries(content) {
+            const logEntriesDiv = document.getElementById('logEntries');
+            logEntriesDiv.innerHTML = '';
+            
+            const lines = content.split('\n').filter(line => line.trim() !== '');
+            lines.forEach(line => {
+                const [tag, puerta, fechaHora, evento] = line.split(',');
+                
+                const entryDiv = document.createElement('div');
+                entryDiv.className = `log-entry ${evento.includes('denegado') ? 'log-denied' : 'log-allowed'}`;
+                entryDiv.innerHTML = `
+                    <strong>Tag:</strong> ${tag} | 
+                    <strong>Puerta:</strong> ${puerta} | 
+                    <strong>Fecha:</strong> ${fechaHora} | 
+                    <strong>Evento:</strong> ${evento}
+                `;
+                
+                logEntriesDiv.appendChild(entryDiv);
+            });
+        }
+
+        // ====================== FUNCIONES AUXILIARES ======================
+        function formatDateForInput(dateStr) {
+            // Convierte de DD/MM/YYYY a YYYY-MM-DD
+            const [day, month, year] = dateStr.split('/');
+            return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+        }
+
+        function saveAllFiles() {
+            // Implementar lógica para guardar todos los cambios
+            alert("¡Todos los cambios han sido guardados en memoria!");
+        }
+
+        function downloadAllFiles() {
+            // Implementar lógica para descargar todos los archivos
+            alert("¡Preparando descarga de todos los archivos!");
+        }
+
+        function exportLogToCSV() {
+            // Implementar exportación a CSV
+            alert("¡Exportando registros a CSV!");
+        }
+
+        // ====================== INICIALIZACIÓN ======================
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
