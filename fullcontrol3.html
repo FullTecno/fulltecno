@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>FTgroup - Full Control 4.1 by Lucas David Toffolo</title>
+    <title>FTgroup - Full Control 4.2 by Lucas David Toffolo</title>
     <style>
         :root {
             --primary: #3498db;
@@ -212,7 +212,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>FTgroup - Full Control 4.1</h1>
+        <h1>FTgroup - Full Control 4.2</h1>
         <p class="subtitle">by Lucas David Toffolo</p>
 
         <!-- Selector de Modo -->
@@ -366,7 +366,7 @@
         </div>
 
         <div class="footer">
-            FTgroup - Full Control 4.1 | by Lucas David Toffolo | 2024
+            FTgroup - Full Control 4.2 | by Lucas David Toffolo | 2024
         </div>
     </div>
 
@@ -377,8 +377,8 @@
             files: {},
             tarjetas: [],
             horarios: [],
-            exit: {1: '1', 2: '3', 3: '2', 4: '4'}, // Pulsador1→Puerta1, Pulsador2→Puerta3, etc.
-            tiempo: {1: 2, 2: 2, 3: 2, 4: 2}, // Tiempos por defecto: 2 segundos
+            exit: {1: '3', 2: '4', 3: '1', 4: '2'}, // Valores por defecto según tu ejemplo
+            tiempo: {1: '2', 2: '2', 3: '2', 4: '2'}, // Tiempos por defecto
             log: []
         };
 
@@ -480,60 +480,95 @@
             
             switch(filename) {
                 case 'TARJETAS.txt':
-                    state.tarjetas = lines.map(line => {
-                        const [id, puertas, fechaInicio, fechaFin, horarioId] = line.split(',');
-                        return {
-                            id,
-                            puertas: puertas.split('').map(p => p === '1'),
-                            fechaInicio,
-                            fechaFin,
-                            horarioId: horarioId || '1' // Asegurar que siempre tenga un ID de horario
-                        };
-                    });
-                    renderTarjetas();
+                    parseTarjetas(content);
                     break;
-                    
                 case 'HORARIOS.txt':
-                    state.horarios = lines.map(line => {
-                        const [id, dias, horaInicio, horaFin] = line.split(',');
-                        return {
-                            id,
-                            dias: dias.split('').map(d => d === '1'),
-                            horaInicio,
-                            horaFin: horaFin || '23:59' // Valor por defecto si no existe
-                        };
-                    });
-                    renderHorarios();
+                    parseHorarios(content);
                     break;
-                    
                 case 'EXIT.txt':
-                    lines.forEach(line => {
-                        const [pulsador, puerta] = line.split(',');
-                        if (pulsador && puerta) {
-                            state.exit[pulsador] = puerta;
-                        }
-                    });
-                    renderExit();
+                    parseExit(content);
                     break;
-                    
                 case 'TIEMPO.txt':
-                    lines.forEach(line => {
-                        const [puerta, tiempo] = line.split(',');
-                        if (puerta && tiempo) {
-                            state.tiempo[puerta] = tiempo;
-                        }
-                    });
-                    renderTiempo();
+                    parseTiempo(content);
                     break;
-                    
                 case 'LOG.txt':
-                    state.log = lines.map(line => {
-                        const [tag, puerta, fechaHora, evento] = line.split(',');
-                        return { tag, puerta, fechaHora, evento };
-                    });
-                    renderLog();
+                    parseLog(content);
                     break;
             }
+        }
+
+        function parseTarjetas(content) {
+            const lines = content.split('\n').filter(line => line.trim() !== '');
+            state.tarjetas = lines.map(line => {
+                const [id, puertas, fechaInicio, fechaFin, horarioId] = line.split(',');
+                return {
+                    id,
+                    puertas: puertas.split('').map(p => p === '1'),
+                    fechaInicio,
+                    fechaFin,
+                    horarioId: horarioId || '1'
+                };
+            });
+            renderTarjetas();
+        }
+
+        function parseHorarios(content) {
+            const lines = content.split('\n').filter(line => line.trim() !== '');
+            state.horarios = lines.map(line => {
+                const [id, dias, horaInicio, horaFin] = line.split(',');
+                return {
+                    id,
+                    dias: dias.split('').map(d => d === '1'),
+                    horaInicio: horaInicio || '00:00',
+                    horaFin: horaFin || '23:59'
+                };
+            });
+            renderHorarios();
+        }
+
+        function parseExit(content) {
+            const lines = content.split('\n').filter(line => line.trim() !== '');
+            const exitConfig = {1: '1', 2: '3', 3: '1', 4: '2'}; // Valores por defecto
+            
+            lines.forEach(line => {
+                const [pulsador, puerta] = line.split(',');
+                if (pulsador && puerta) {
+                    exitConfig[pulsador] = puerta;
+                }
+            });
+            
+            state.exit = exitConfig;
+            renderExit();
+        }
+
+        function parseTiempo(content) {
+            const lines = content.split('\n').filter(line => line.trim() !== '');
+            const tiempoConfig = {1: '2', 2: '2', 3: '2', 4: '2'}; // Valores por defecto
+            
+            lines.forEach(line => {
+                const [puerta, tiempo] = line.split(',');
+                if (puerta && tiempo) {
+                    tiempoConfig[puerta] = tiempo;
+                }
+            });
+            
+            state.tiempo = tiempoConfig;
+            renderTiempo();
+        }
+
+        function parseLog(content) {
+            state.log = content.split('\n')
+                .filter(line => line.trim() !== '')
+                .map(line => {
+                    const parts = line.split(',');
+                    return {
+                        tag: parts[0],
+                        puerta: parts[1],
+                        fechaHora: parts[2],
+                        evento: parts.slice(3).join(',') // Para capturar todo el texto del evento
+                    };
+                });
+            renderLog();
         }
 
         // ====================== RENDERIZADO ======================
@@ -624,8 +659,8 @@
         function renderExit() {
             document.getElementById('exit1').value = state.exit[1] || '1';
             document.getElementById('exit2').value = state.exit[2] || '3';
-            document.getElementById('exit3').value = state.exit[3] || '2';
-            document.getElementById('exit4').value = state.exit[4] || '4';
+            document.getElementById('exit3').value = state.exit[3] || '1';
+            document.getElementById('exit4').value = state.exit[4] || '2';
         }
 
         function renderTiempo() {
@@ -716,13 +751,13 @@
 
         // ====================== FUNCIONES UTILITARIAS ======================
         function formatDateForInput(dateStr) {
-            if (!dateStr) return '2024-01-01';
+            if (!dateStr || !dateStr.includes('/')) return '2024-01-01';
             const [day, month, year] = dateStr.split('/');
             return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
         }
 
         function formatDateForOutput(dateStr) {
-            if (!dateStr) return '01/01/2024';
+            if (!dateStr || !dateStr.includes('-')) return '01/01/2024';
             const [year, month, day] = dateStr.split('-');
             return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`;
         }
@@ -777,9 +812,13 @@
                 `${h.id},${h.dias.map(d => d ? '1' : '0').join('')},${h.horaInicio},${h.horaFin}`
             ).join('\n');
             
-            const exitContent = `1,${state.exit[1]}\n2,${state.exit[2]}\n3,${state.exit[3]}\n4,${state.exit[4]}`;
+            const exitContent = Object.entries(state.exit)
+                .map(([pulsador, puerta]) => `${pulsador},${puerta}`)
+                .join('\n');
             
-            const tiempoContent = `1,${state.tiempo[1]}\n2,${state.tiempo[2]}\n3,${state.tiempo[3]}\n4,${state.tiempo[4]}`;
+            const tiempoContent = Object.entries(state.tiempo)
+                .map(([puerta, tiempo]) => `${puerta},${tiempo}`)
+                .join('\n');
             
             const logContent = state.log.map(l => 
                 `${l.tag},${l.puerta},${l.fechaHora},${l.evento}`
@@ -794,7 +833,7 @@
                 'LOG.txt': logContent
             };
             
-            alert('¡Todos los cambios han sido guardados en memoria!');
+            alert('¡Configuración guardada correctamente!');
         }
 
         function downloadAllFiles() {
@@ -802,7 +841,7 @@
             
             // Crear un ZIP con todos los archivos (usando JSZip)
             if (typeof JSZip === 'undefined') {
-                alert('Error: JSZip no está cargado. Descarga los archivos individualmente.');
+                alert('Descargando archivos individualmente...');
                 downloadIndividualFiles();
                 return;
             }
@@ -838,8 +877,8 @@
             if (confirm('¿Estás seguro de que quieres reiniciar toda la configuración?')) {
                 state.tarjetas = [];
                 state.horarios = [];
-                state.exit = {1: '1', 2: '3', 3: '2', 4: '4'};
-                state.tiempo = {1: 2, 2: 2, 3: 2, 4: 2};
+                state.exit = {1: '3', 2: '4', 3: '1', 4: '2'};
+                state.tiempo = {1: '2', 2: '2', 3: '2', 4: '2'};
                 state.log = [];
                 renderEmptyTemplates();
             }
