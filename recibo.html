@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recibo Editable</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 30px;
+      display: flex;
+      justify-content: center;
+    }
+    .marco {
+      position: relative;
+      background: white;
+      padding: 40px;
+      border: 2px solid #000;
+      max-width: 800px;
+      width: 100%;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      font-size: 14px;
+    }
+    .marca-agua {
+      position: absolute;
+      top: 40px;
+      left: 0;
+      right: 0;
+      opacity: 0.12;
+      text-align: center;
+      z-index: 0;
+    }
+    .marca-agua img {
+      max-width: 400px;
+    }
+    h1, h2 {
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+    input, textarea, select {
+      width: 100%;
+      border: none;
+      border-bottom: 1px solid #000;
+      font-size: 13px;
+      margin-bottom: 8px;
+      background: transparent;
+      z-index: 1;
+      position: relative;
+    }
+    .section { margin-top: 20px; position: relative; z-index: 1; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .right { text-align: right; }
+    .print-btn { margin-top: 30px; text-align: center; }
+    button { padding: 8px 16px; font-size: 13px; }
+    .highlight { font-weight: bold; font-size: 16px; }
+    .label { font-weight: bold; margin-top: 8px; font-size: 13px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 13px; }
+    table, th, td { border: 1px solid #000; }
+    th, td { padding: 6px; text-align: left; }
+    @media print {
+      body { padding: 0; }
+      .marco { box-shadow: none; border: none; padding: 20px; font-size: 12px; }
+      input, textarea, select { font-size: 12px; }
+      button, .print-btn { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="marco">
+    <div class="marca-agua">
+      <img src="https://ftgroup.ar/images/NUEVO%20LOGO%20FT.jpg" alt="Marca de agua">
+    </div>
+    <h1>FULL TECNO GROUP</h1>
+    <h2>Recibo</h2>
+    <p style="text-align:center">Documento no válido como factura</p>
+
+    <div class="section grid">
+      <div>
+        <label class="label">N°:</label>
+        <input type="text" value="0002-00106240">
+      </div>
+      <div>
+        <label class="label">Fecha:</label>
+        <input type="date" id="fecha">
+      </div>
+    </div>
+
+    <div class="section">
+      <p>CUIT: 23-29111811-9</p>
+      <p>Ing. Brutos: 902-553214-3</p>
+      <p>Inicio de actividades: 03/06/2009</p>
+      <p>Raquel Español 149 - Wilde | Tel: 1126428399 | www.ftgroup.ar</p>
+    </div>
+
+    <div class="section">
+      <label class="label">Señor/es:</label>
+      <input type="text" value="Torres Mariano Moreno, Edificio D7">
+
+      <label class="label">En concepto de:</label>
+      <textarea rows="3">Anticipo por instalación de control de acceso en 2 puertas, para Torres Mariano Moreno, Edificio D7 (Sobre un total de $1.989.760, presupuesto N° 3097 del 0/05/2025)</textarea>
+    </div>
+
+    <div class="section">
+      <label class="label">Detalle de ítems:</label>
+      <table id="tablaItems">
+        <thead>
+          <tr>
+            <th>Descripción</th>
+            <th>Importe</th>
+            <th>Moneda</th>
+            <th>Forma de pago</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input type="text" placeholder="Ej: Instalación puerta A"></td>
+            <td><input type="number" step="0.01" class="importe" oninput="calcularTotal()"></td>
+            <td>
+              <select class="moneda" onchange="calcularTotal()">
+                <option value="$">$</option>
+                <option value="USD">USD</option>
+              </select>
+            </td>
+            <td>
+              <select>
+                <option>Efectivo</option>
+                <option>Transferencia</option>
+                <option>Cheque</option>
+              </select>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <button onclick="agregarFila()">Agregar ítem</button>
+    </div>
+
+    <div class="section">
+      <label class="label">Total:</label>
+      <input type="text" id="total" readonly>
+
+     
+      <input type="text" id="letras" readonly>
+    </div>
+
+    <div class="print-btn">
+      <button onclick="window.print()">Imprimir / Guardar como PDF</button>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById("fecha").valueAsDate = new Date();
+
+    function agregarFila() {
+      const table = document.getElementById("tablaItems").getElementsByTagName('tbody')[0];
+      const row = table.insertRow();
+      row.innerHTML = `
+        <td><input type="text" placeholder="Ej: Servicio"></td>
+        <td><input type="number" step="0.01" class="importe" oninput="calcularTotal()"></td>
+        <td>
+          <select class="moneda" onchange="calcularTotal()">
+            <option value="$">$</option>
+            <option value="USD">USD</option>
+          </select>
+        </td>
+        <td>
+          <select>
+            <option>Efectivo</option>
+            <option>Transferencia</option>
+            <option>Cheque</option>
+          </select>
+        </td>
+      `;
+    }
+
+    function calcularTotal() {
+      let total = 0;
+      let monedas = new Set();
+      const importes = document.querySelectorAll(".importe");
+      const monedasSelect = document.querySelectorAll(".moneda");
+
+      importes.forEach((input, i) => {
+        let valor = parseFloat(input.value) || 0;
+        let moneda = monedasSelect[i].value;
+        monedas.add(moneda);
+        if (moneda === "$") total += valor;
+      });
+
+      const monedaFinal = monedas.size === 1 ? [...monedas][0] : '$';
+      document.getElementById("total").value = monedaFinal + ' ' + total.toLocaleString('es-AR', { minimumFractionDigits: 2 });
+      document.getElementById("letras").value = numeroALetras(total, monedaFinal);
+    }
+
+    function numeroALetras(numero, simbolo) {
+      const unidades = ['cero','uno','dos','tres','cuatro','cinco','seis','siete','ocho','nueve'];
+      const especiales = ['diez','once','doce','trece','catorce','quince','dieciséis','diecisiete','dieciocho','diecinueve'];
+      const decenas = ['','diez','veinte','treinta','cuarenta','cincuenta','sesenta','setenta','ochenta','noventa'];
+      const centenas = ['','ciento','doscientos','trescientos','cuatrocientos','quinientos','seiscientos','setecientos','ochocientos','novecientos'];
+
+      function convertir(n) {
+        if (n < 10) return unidades[n];
+        if (n < 20) return especiales[n - 10];
+        if (n < 100) return decenas[Math.floor(n / 10)] + (n % 10 !== 0 ? ' y ' + unidades[n % 10] : '');
+        if (n === 100) return 'cien';
+        if (n < 1000) return centenas[Math.floor(n / 100)] + (n % 100 !== 0 ? ' ' + convertir(n % 100) : '');
+        if (n < 1000000) {
+          let miles = Math.floor(n / 1000);
+          let resto = n % 1000;
+          return (miles === 1 ? 'mil' : convertir(miles) + ' mil') + (resto > 0 ? ' ' + convertir(resto) : '');
+        }
+        if (n < 1000000000) {
+          let millones = Math.floor(n / 1000000);
+          let resto = n % 1000000;
+          return (millones === 1 ? 'un millón' : convertir(millones) + ' millones') + (resto > 0 ? ' ' + convertir(resto) : '');
+        }
+        return '';
+      }
+
+      const entero = Math.floor(numero);
+      const decimales = Math.round((numero - entero) * 100);
+      let texto = convertir(entero) + (simbolo === 'USD' ? ' dólares' : ' pesos');
+      if (decimales > 0) texto += ' con ' + decimales.toString().padStart(2, '0') + '/100';
+      return texto.charAt(0).toUpperCase() + texto.slice(1);
+    }
+  </script>
+</body>
+</html>
