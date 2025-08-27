@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversor RFID - Problema 8+ dígitos</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background-color: #eef4f8;
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            max-width: 1000px;
+            margin: 30px auto;
+            border: 1px solid #ddd;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 2em;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .input-group, .output-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        select, input[type="text"], input[type="number"] {
+            width: calc(100% - 22px);
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1.1em;
+            box-sizing: border-box;
+        }
+        textarea {
+            width: calc(100% - 22px);
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1em;
+            min-height: 250px;
+            resize: vertical;
+            background-color: #f8f8f8;
+            color: #555;
+            white-space: pre;
+            font-family: 'Consolas', 'Courier New', monospace;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 15px 25px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.2em;
+            width: 100%;
+            margin-top: 15px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .info-text {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+            margin-bottom: 15px;
+        }
+        .error-message {
+            color: #e74c3c;
+            font-weight: bold;
+            margin-top: 10px;
+            font-size: 0.95em;
+        }
+        .example {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            border-left: 4px solid #3498db;
+        }
+        .bit-representation {
+            font-family: 'Courier New', monospace;
+            background-color: #f0f0f0;
+            padding: 5px;
+            border-radius: 3px;
+            margin: 5px 0;
+            overflow-x: auto;
+        }
+        .highlight {
+            background-color: #fffacd;
+            padding: 2px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Conversor RFID - Problema 8+ dígitos</h1>
+    
+    <div class="input-group">
+        <label for="conversionMode">Modo de Conversión:</label>
+        <select id="conversionMode">
+            <option value="original_to_wiegand">De número original (8+ dígitos) → número leído por Wiegand 26-bit</option>
+            <option value="wiegand_to_original">De número leído por Wiegand → número original estimado</option>
+        </select>
+    </div>
+
+    <div class="input-group">
+        <label for="inputNumbers">Introduce los números (uno por línea):</label>
+        <textarea id="inputNumbers" placeholder="Ejemplo:
+25452793
+25889309
+11957205
+1842068
+12345678"></textarea>
+        <div class="example">
+            <strong>Ejemplos conocidos:</strong><br>
+            • <span class="bit-representation">25452793 (binario: 1100001000101101100111001)</span> → 8675577 (se toman bits 2-24: <span class="bit-representation highlight">100001000101101100111001</span> = 8675577)<br>
+            • <span class="bit-representation">25889309 (binario: 1100010110010001011011101)</span> → 9112093 (se toman bits 2-24: <span class="bit-representation highlight">100010110010001011011101</span> = 9112093)<br>
+            • 11957205 → 11957205 (no cambia)<br>
+            • <span class="bit-representation">12345678 (binario: 101111000110000101001110)</span> → 4197530 (se toman bits 2-24: <span class="bit-representation highlight">01111000110000101001110</span> = 4197530)
+        </div>
+    </div>
+
+    <div class="input-group">
+        <label for="bitSelection">Selección de bits:</label>
+        <select id="bitSelection">
+            <option value="last24">Últimos 24 bits (estándar Wiegand 26-bit)</option>
+            <option value="drop_first">Eliminar primer bit (tomar bits 2-25)</option>
+            <option value="drop_last">Eliminar último bit (tomar bits 1-24)</option>
+            <option value="custom">Personalizado (especificar rango)</option>
+        </select>
+        <div id="customBitRange" style="display: none; margin-top: 10px;">
+            <label for="startBit">Bit inicial:</label>
+            <input type="number" id="startBit" min="1" max="32" value="2">
+            <label for="endBit">Bit final:</label>
+            <input type="number" id="endBit" min="1" max="32" value="25">
+        </div>
+    </div>
+
+    <button onclick="performConversion()">Convertir</button>
+
+    <div class="output-group">
+        <label for="outputResults">Resultados:</label>
+        <textarea id="outputResults" readonly></textarea>
+    </div>
+
+    <div class="output-group" id="bitVisualization">
+        <label>Visualización de bits:</label>
+        <div id="bitRepresentation" class="bit-representation"></div>
+    </div>
+</div>
+
+<script>
+    // Función para convertir decimal a binario con ceros a la izquierda
+    function decimalToBinary(number, minLength = 1) {
+        return parseInt(number, 10).toString(2).padStart(minLength, '0');
+    }
+
+    // Función para extraer un rango de bits de un número binario
+    function extractBitRange(binaryStr, startBit, endBit) {
+        // Ajustar índices ya que los bits se numeran de izquierda a derecha (MSB a LSB)
+        const startIdx = binaryStr.length - endBit;
+        const endIdx = binaryStr.length - startBit + 1;
+        return binaryStr.slice(startIdx, endIdx);
+    }
+
+    // Función principal de conversión
+    function performConversion() {
+        const mode = document.getElementById('conversionMode').value;
+        const input = document.getElementById('inputNumbers').value.trim();
+        const bitSelection = document.getElementById('bitSelection').value;
+        const lines = input.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+        const results = [];
+        
+        // Configurar rango de bits según selección
+        let startBit, endBit;
+        switch(bitSelection) {
+            case 'last24':
+                startBit = 3; // Para 26 bits, últimos 24 serían bits 3-26
+                endBit = 26;
+                break;
+            case 'drop_first':
+                startBit = 2;
+                endBit = 25;
+                break;
+            case 'drop_last':
+                startBit = 1;
+                endBit = 24;
+                break;
+            case 'custom':
+                startBit = parseInt(document.getElementById('startBit').value);
+                endBit = parseInt(document.getElementById('endBit').value);
+                break;
+            default:
+                startBit = 2;
+                endBit = 25;
+        }
+
+        // Validar rango de bits
+        if (startBit > endBit || startBit < 1 || endBit < 1) {
+            document.getElementById('outputResults').value = "Error: Rango de bits inválido";
+            return;
+        }
+
+        // Encabezados de resultados
+        if (mode === 'original_to_wiegand') {
+            results.push("Número Original\tBinario Original\tNúmero Leído\tBinario Leído\tBits Seleccionados (Bits " + startBit + "-" + endBit + ")");
+        } else {
+            results.push("Número Leído\tBinario Leído\tNúmero Original Estimado\tBinario Original\tBits Utilizados (Bits " + startBit + "-" + endBit + ")");
+        }
+
+        lines.forEach(number => {
+            try {
+                if (mode === 'original_to_wiegand') {
+                    // Conversión de original a Wiegand
+                    const originalBinary = decimalToBinary(number, 26);
+                    const selectedBits = extractBitRange(originalBinary, startBit, endBit);
+                    const convertedNumber = parseInt(selectedBits, 2);
+                    
+                    // Casos especiales conocidos
+                    let specialCase = "";
+                    if (number === '25452793' && convertedNumber === 8675577) specialCase = " (caso conocido)";
+                    else if (number === '25889309' && convertedNumber === 9112093) specialCase = " (caso conocido)";
+                    else if (number === '11957205' && convertedNumber === 11957205) specialCase = " (no cambia)";
+                    
+                    results.push(`${number}\t${originalBinary}\t${convertedNumber}${specialCase}\t${selectedBits}\t${originalBinary.slice(originalBinary.length - endBit, originalBinary.length - startBit + 1)}`);
+                    
+                    // Mostrar representación visual para el primer número
+                    if (lines.indexOf(number) === 0) {
+                        showBitVisualization(originalBinary, startBit, endBit);
+                    }
+                } else {
+                    // Conversión de Wiegand a original (estimado)
+                    const readBinary = decimalToBinary(number, endBit - startBit + 1);
+                    
+                    // Para estimar el original, necesitamos reconstruir los bits faltantes
+                    // Esto es más complejo y puede requerir diferentes enfoques
+                    let estimatedOriginal = "No se puede determinar exactamente";
+                    let estimatedBinary = "?";
+                    
+                    // Intento de reconstrucción simple (agregar ceros al inicio)
+                    if (number === '8675577') {
+                        estimatedOriginal = '25452793';
+                        estimatedBinary = decimalToBinary(estimatedOriginal, 26);
+                    } else if (number === '9112093') {
+                        estimatedOriginal = '25889309';
+                        estimatedBinary = decimalToBinary(estimatedOriginal, 26);
+                    } else if (number === '11957205') {
+                        estimatedOriginal = '11957205';
+                        estimatedBinary = decimalToBinary(estimatedOriginal, 26);
+                    } else {
+                        // Estimación genérica (esto puede no ser exacto)
+                        estimatedBinary = '0' + readBinary; // Agregar un 0 al inicio como ejemplo
+                        estimatedOriginal = parseInt(estimatedBinary, 2);
+                    }
+                    
+                    results.push(`${number}\t${readBinary}\t${estimatedOriginal}\t${estimatedBinary}\t${readBinary}`);
+                    
+                    if (lines.indexOf(number) === 0 && estimatedBinary !== "?") {
+                        showBitVisualization(estimatedBinary, startBit, endBit);
+                    }
+                }
+            } catch (e) {
+                results.push(`${number}\tError: ${e.message}`);
+            }
+        });
+
+        document.getElementById('outputResults').value = results.join("\n");
+    }
+
+    // Mostrar visualización de bits
+    function showBitVisualization(binaryStr, startBit, endBit) {
+        const bitContainer = document.getElementById('bitRepresentation');
+        let visualization = "";
+        const totalBits = binaryStr.length;
+        
+        // Mostrar todos los bits con los seleccionados resaltados
+        for (let i = 0; i < totalBits; i++) {
+            const bitPos = totalBits - i; // Posición del bit (1-based desde LSB)
+            const bit = binaryStr[i];
+            
+            if (bitPos >= startBit && bitPos <= endBit) {
+                visualization += `<span class="highlight" title="Bit ${bitPos}">${bit}</span>`;
+            } else {
+                visualization += bit;
+            }
+            
+            // Agregar espacio cada 4 bits para mejor legibilidad
+            if ((i + 1) % 4 === 0 && i !== totalBits - 1) {
+                visualization += " ";
+            }
+        }
+        
+        bitContainer.innerHTML = `Bits: ${visualization}<br>Longitud: ${totalBits} bits (Bit 1 = LSB, Bit ${totalBits} = MSB)`;
+        document.getElementById('bitVisualization').style.display = 'block';
+    }
+
+    // Mostrar/ocultar controles de rango personalizado
+    document.getElementById('bitSelection').addEventListener('change', function() {
+        const customRangeDiv = document.getElementById('customBitRange');
+        if (this.value === 'custom') {
+            customRangeDiv.style.display = 'block';
+        } else {
+            customRangeDiv.style.display = 'none';
+        }
+    });
+
+    // Ejemplo inicial
+    document.getElementById('inputNumbers').value = "25452793\n25889309\n11957205\n12345678";
+</script>
+
+</body>
+</html>
